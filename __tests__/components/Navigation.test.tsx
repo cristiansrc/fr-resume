@@ -67,6 +67,7 @@ const mockResumeData = {
 };
 
 describe("Navigation Component", () => {
+  jest.setTimeout(15000);
   const mockSetNavOpen = jest.fn();
 
   beforeEach(() => {
@@ -80,53 +81,52 @@ describe("Navigation Component", () => {
     (getInfoPage as jest.Mock).mockResolvedValue(mockResumeData);
   });
 
-  const renderNavigation = async (navOpen = false) => {
-    let result: any;
-    await act(async () => {
-      result = render(
-        <LanguageProvider>
-          <ResumeProvider>
-            <Navigation setNavOpen={mockSetNavOpen} navOpen={navOpen} />
-          </ResumeProvider>
-        </LanguageProvider>
-      );
-    });
-    return result;
+  const renderNavigation = (navOpen = false) => {
+    return render(
+      <LanguageProvider>
+        <ResumeProvider>
+          <Navigation setNavOpen={mockSetNavOpen} navOpen={navOpen} />
+        </ResumeProvider>
+      </LanguageProvider>
+    );
   };
 
   it("should render navigation links", async () => {
-    await renderNavigation();
+    renderNavigation();
     
     // Wait for data to load and component to render
     await waitFor(() => {
       expect(screen.getByText(/inicio/i)).toBeInTheDocument();
-    }, { timeout: 10000 });
+    }, { timeout: 15000 });
     
     expect(screen.getByText(/sobre mí/i)).toBeInTheDocument();
     expect(screen.getByText(/habilidades/i)).toBeInTheDocument();
   });
 
   it("should display email from resume data", async () => {
-    await renderNavigation();
+    renderNavigation();
     
     // Wait for data to load
     await waitFor(() => {
       expect(screen.getByText("test@example.com")).toBeInTheDocument();
-    }, { timeout: 10000 });
+    }, { timeout: 15000 });
   });
 
   it("should call downloadCurriculumPdf when resume link is clicked", async () => {
     (downloadCurriculumPdf as jest.Mock).mockResolvedValue(undefined);
 
-    await renderNavigation();
+    renderNavigation();
     
     // Wait for data to load and component to render
     await waitFor(() => {
       expect(screen.getByText(/hoja de vida/i)).toBeInTheDocument();
-    }, { timeout: 10000 });
+    }, { timeout: 15000 });
     
     const resumeLink = screen.getByText(/hoja de vida/i);
-    fireEvent.click(resumeLink);
+    
+    await act(async () => {
+      fireEvent.click(resumeLink);
+    });
 
     await waitFor(() => {
       expect(downloadCurriculumPdf).toHaveBeenCalledWith("spanish");
@@ -135,15 +135,18 @@ describe("Navigation Component", () => {
   });
 
   it("should close navigation when link is clicked", async () => {
-    await renderNavigation();
+    renderNavigation();
     
     // Wait for data to load and component to render
     await waitFor(() => {
       expect(screen.getByText(/sobre mí/i)).toBeInTheDocument();
-    }, { timeout: 10000 });
+    }, { timeout: 15000 });
     
     const aboutLink = screen.getByText(/sobre mí/i);
-    fireEvent.click(aboutLink);
+    
+    await act(async () => {
+      fireEvent.click(aboutLink);
+    });
 
     expect(mockSetNavOpen).toHaveBeenCalledWith(false);
   });

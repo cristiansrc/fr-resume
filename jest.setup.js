@@ -111,8 +111,7 @@ document.createElement = jest.fn((tagName) => {
   return originalCreateElement(tagName)
 })
 
-document.body.appendChild = jest.fn((node) => node)
-document.body.removeChild = jest.fn((node) => node)
+// NO mockear appendChild/removeChild - React Testing Library los necesita para renderizar
 
 // Mock window.scrollTo
 window.scrollTo = jest.fn()
@@ -123,3 +122,53 @@ global.requestAnimationFrame = jest.fn((cb) => {
   return 1
 })
 global.cancelAnimationFrame = jest.fn()
+
+// Mock localStorage - simple implementation without jest.fn to avoid interference
+const createLocalStorageMock = () => {
+  let store = {};
+  return {
+    getItem: (key) => {
+      return store[key] || null;
+    },
+    setItem: (key, value) => {
+      store[key] = String(value);
+    },
+    removeItem: (key) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+    get length() {
+      return Object.keys(store).length;
+    },
+    key: (index) => {
+      const keys = Object.keys(store);
+      return keys[index] || null;
+    },
+  };
+};
+
+// Set up localStorage mock
+const localStorageMock = createLocalStorageMock();
+
+// Ensure localStorage is available on window
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'localStorage', {
+    value: localStorageMock,
+    writable: true,
+    configurable: true,
+  });
+}
+
+// Also ensure it's available globally
+global.localStorage = localStorageMock;
+
+// Ensure navigator.language is defined
+if (!navigator.language) {
+  Object.defineProperty(navigator, 'language', {
+    writable: true,
+    configurable: true,
+    value: 'en-US',
+  });
+}
