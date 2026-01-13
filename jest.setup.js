@@ -52,6 +52,18 @@ jest.mock('gsap', () => ({
   to: jest.fn(() => ({
     kill: jest.fn(),
   })),
+  set: jest.fn(),
+  fromTo: jest.fn(() => ({
+    kill: jest.fn(),
+  })),
+  timeline: jest.fn(() => ({
+    to: jest.fn().mockReturnThis(),
+    from: jest.fn().mockReturnThis(),
+    add: jest.fn().mockReturnThis(),
+    play: jest.fn().mockReturnThis(),
+    pause: jest.fn().mockReturnThis(),
+    kill: jest.fn(),
+  })),
   registerPlugin: jest.fn(),
   ScrollTrigger: {
     create: jest.fn(),
@@ -101,3 +113,13 @@ document.createElement = jest.fn((tagName) => {
 
 document.body.appendChild = jest.fn((node) => node)
 document.body.removeChild = jest.fn((node) => node)
+
+// Mock window.scrollTo
+window.scrollTo = jest.fn()
+
+// Mock requestAnimationFrame
+global.requestAnimationFrame = jest.fn((cb) => {
+  setTimeout(cb, 0)
+  return 1
+})
+global.cancelAnimationFrame = jest.fn()

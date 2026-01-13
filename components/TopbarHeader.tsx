@@ -1,14 +1,13 @@
-import Image from "next/image";
 import React, { Dispatch, SetStateAction } from "react";
-import Logo from "@/public/images/logo.png";
 import Link from "next/link";
+import Logo from "@/components/Logo";
 
 const TopbarHeader = ({ setNavOpen, navOpen, classes }: { setNavOpen: Dispatch<SetStateAction<boolean>>; navOpen: boolean; classes?: string }) => {
   return (
     <header className="header-topbar">
       <div className="container d-flex align-items-center justify-content-between">
         <Link href="/">
-          <Image src={Logo} alt="logo" />
+          <Logo showText={true} />
         </Link>
 
         <div className="d-flex gap-2 gap-sm-3 align-items-center">

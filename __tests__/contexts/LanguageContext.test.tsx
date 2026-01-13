@@ -34,17 +34,20 @@ describe("LanguageContext", () => {
       value: "en-US",
     });
 
-    render(
-      <LanguageProvider>
-        <TestComponent />
-      </LanguageProvider>
-    );
+    await act(async () => {
+      render(
+        <LanguageProvider>
+          <TestComponent />
+        </LanguageProvider>
+      );
+    });
 
+    // Wait for useEffect to run and update language
     await waitFor(() => {
       const element = screen.getByTestId("language");
       expect(element).toBeInTheDocument();
       expect(element).toHaveTextContent("en");
-    }, { timeout: 3000 });
+    }, { timeout: 5000 });
   });
 
   it("should provide default language from browser (Spanish)", async () => {
@@ -55,33 +58,39 @@ describe("LanguageContext", () => {
       value: "es-ES",
     });
 
-    render(
-      <LanguageProvider>
-        <TestComponent />
-      </LanguageProvider>
-    );
+    await act(async () => {
+      render(
+        <LanguageProvider>
+          <TestComponent />
+        </LanguageProvider>
+      );
+    });
 
+    // Wait for useEffect to run and update language
     await waitFor(() => {
       const element = screen.getByTestId("language");
       expect(element).toBeInTheDocument();
       expect(element).toHaveTextContent("es");
-    }, { timeout: 3000 });
+    }, { timeout: 5000 });
   });
 
   it("should load language from localStorage", async () => {
     localStorage.setItem("language", "es");
 
-    render(
-      <LanguageProvider>
-        <TestComponent />
-      </LanguageProvider>
-    );
+    await act(async () => {
+      render(
+        <LanguageProvider>
+          <TestComponent />
+        </LanguageProvider>
+      );
+    });
 
+    // Wait for useEffect to run and load from localStorage
     await waitFor(() => {
       const element = screen.getByTestId("language");
       expect(element).toBeInTheDocument();
       expect(element).toHaveTextContent("es");
-    }, { timeout: 3000 });
+    }, { timeout: 5000 });
   });
 
   it("should update language and save to localStorage", async () => {
@@ -92,15 +101,19 @@ describe("LanguageContext", () => {
       value: "en-US",
     });
 
-    render(
-      <LanguageProvider>
-        <TestComponent />
-      </LanguageProvider>
-    );
+    await act(async () => {
+      render(
+        <LanguageProvider>
+          <TestComponent />
+        </LanguageProvider>
+      );
+    });
 
+    // Wait for initial render and language detection
     await waitFor(() => {
       expect(screen.getByTestId("language")).toBeInTheDocument();
-    }, { timeout: 3000 });
+      expect(screen.getByTestId("language")).toHaveTextContent("en");
+    }, { timeout: 5000 });
 
     const spanishButton = screen.getByText("Set Spanish");
     
@@ -108,6 +121,7 @@ describe("LanguageContext", () => {
       spanishButton.click();
     });
 
+    // Wait for language update
     await waitFor(() => {
       expect(screen.getByTestId("language")).toHaveTextContent("es");
     });

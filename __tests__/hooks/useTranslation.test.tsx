@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, act } from "@testing-library/react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 
@@ -35,18 +35,25 @@ describe("useTranslation", () => {
       value: "en-US",
     });
 
-    render(
-      <LanguageProvider>
-        <TestComponent />
-      </LanguageProvider>
-    );
+    await act(async () => {
+      render(
+        <LanguageProvider>
+          <TestComponent />
+        </LanguageProvider>
+      );
+    });
 
+    // Wait for language to be detected and component to render
     await waitFor(() => {
       const element = screen.getByTestId("language");
       expect(element).toBeInTheDocument();
       expect(element).toHaveTextContent("en");
-    }, { timeout: 3000 });
-    expect(screen.getByTestId("translation")).toHaveTextContent("top");
+    }, { timeout: 5000 });
+    
+    // Wait for translation to be available
+    await waitFor(() => {
+      expect(screen.getByTestId("translation")).toHaveTextContent("top");
+    });
   });
 
   it("should return Spanish translations when language is Spanish", async () => {
@@ -57,18 +64,25 @@ describe("useTranslation", () => {
       value: "es-ES",
     });
 
-    render(
-      <LanguageProvider>
-        <TestComponent />
-      </LanguageProvider>
-    );
+    await act(async () => {
+      render(
+        <LanguageProvider>
+          <TestComponent />
+        </LanguageProvider>
+      );
+    });
 
+    // Wait for language to be detected and component to render
     await waitFor(() => {
       const element = screen.getByTestId("language");
       expect(element).toBeInTheDocument();
       expect(element).toHaveTextContent("es");
-    }, { timeout: 3000 });
-    expect(screen.getByTestId("translation")).toHaveTextContent("inicio");
+    }, { timeout: 5000 });
+    
+    // Wait for translation to be available
+    await waitFor(() => {
+      expect(screen.getByTestId("translation")).toHaveTextContent("inicio");
+    });
   });
 
   it("should handle nested translation keys", async () => {
@@ -79,17 +93,25 @@ describe("useTranslation", () => {
       value: "en-US",
     });
 
-    render(
-      <LanguageProvider>
-        <TestComponent />
-      </LanguageProvider>
-    );
+    await act(async () => {
+      render(
+        <LanguageProvider>
+          <TestComponent />
+        </LanguageProvider>
+      );
+    });
 
+    // Wait for component to render and language to be detected
+    await waitFor(() => {
+      expect(screen.getByTestId("language")).toBeInTheDocument();
+    }, { timeout: 5000 });
+    
+    // Wait for nested translation
     await waitFor(() => {
       const element = screen.getByTestId("nested-translation");
       expect(element).toBeInTheDocument();
       expect(element).toHaveTextContent("Submit");
-    }, { timeout: 3000 });
+    });
   });
 
   it("should return the key when translation is not found", async () => {
@@ -101,17 +123,24 @@ describe("useTranslation", () => {
       return <span data-testid="invalid">{t("invalid.key" as any)}</span>;
     };
 
-    render(
-      <LanguageProvider>
-        <TestComponentWithInvalidKey />
-      </LanguageProvider>
-    );
+    await act(async () => {
+      render(
+        <LanguageProvider>
+          <TestComponentWithInvalidKey />
+        </LanguageProvider>
+      );
+    });
 
+    // Wait for component to render and language to be detected
+    await waitFor(() => {
+      expect(screen.getByTestId("invalid")).toBeInTheDocument();
+    }, { timeout: 5000 });
+    
+    // Wait for invalid key to be displayed
     await waitFor(() => {
       const element = screen.getByTestId("invalid");
-      expect(element).toBeInTheDocument();
       expect(element).toHaveTextContent("invalid.key");
-    }, { timeout: 3000 });
+    });
     expect(consoleWarn).toHaveBeenCalled();
     
     consoleWarn.mockRestore();

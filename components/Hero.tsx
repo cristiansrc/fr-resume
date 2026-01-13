@@ -45,7 +45,20 @@ const Hero = ({ classes }: { classes?: string }) => {
 
   // Handle description SplitType separately, only when data is ready
   useEffect(() => {
+    // Wait for data to be available
+    if (!data?.basicData?.located && !data?.basicData?.locatedEng) {
+      // If data is not available yet, set the text content directly to ensure it updates when data loads
+      if (descriptionRef.current) {
+        descriptionRef.current.textContent = basedInText;
+      }
+      return;
+    }
     if (!descriptionRef.current || !fullDescriptionText || fullDescriptionText.trim() === '') return;
+
+    // First, ensure the text is set correctly in the DOM before applying any effects
+    if (descriptionRef.current.textContent !== fullDescriptionText) {
+      descriptionRef.current.textContent = fullDescriptionText;
+    }
 
     const applySplitType = () => {
       if (!descriptionRef.current) return;
@@ -133,7 +146,7 @@ const Hero = ({ classes }: { classes?: string }) => {
       if (timer) clearTimeout(timer);
       retryCount = 0;
     };
-  }, [language, fullDescriptionText]);
+  }, [language, fullDescriptionText, data?.basicData?.located, data?.basicData?.locatedEng]);
   return (
     <section id="top" className={`hero ${classes}`}>
       <div className="row gx-4 justify-content-center align-items-center">
@@ -154,7 +167,7 @@ const Hero = ({ classes }: { classes?: string }) => {
             </div>
             <p 
               ref={descriptionRef} 
-              key={`description-${language}-${data?.basicData?.located || ''}`}
+              key={`description-${language}-${data?.basicData?.located || ''}-${data?.basicData?.locatedEng || ''}`}
               className={`description description-${language}`}
             >
               {t("hero.basedIn")}{data?.basicData?.located ? (language === "es" ? data.basicData.located : data.basicData.locatedEng) : ""}

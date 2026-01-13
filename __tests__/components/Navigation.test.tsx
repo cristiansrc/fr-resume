@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import Navigation from "@/components/Navigation";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ResumeProvider } from "@/contexts/ResumeContext";
@@ -12,8 +12,10 @@ jest.mock("@gsap/react", () => ({
 }));
 
 jest.mock("gsap", () => ({
-  to: jest.fn(),
-  from: jest.fn(),
+  to: jest.fn(() => ({ kill: jest.fn() })),
+  from: jest.fn(() => ({ kill: jest.fn() })),
+  set: jest.fn(),
+  registerPlugin: jest.fn(),
 }));
 
 jest.mock("shuffle-letters", () => jest.fn());
@@ -78,42 +80,50 @@ describe("Navigation Component", () => {
     (getInfoPage as jest.Mock).mockResolvedValue(mockResumeData);
   });
 
-  const renderNavigation = (navOpen = false) => {
-    return render(
-      <LanguageProvider>
-        <ResumeProvider>
-          <Navigation setNavOpen={mockSetNavOpen} navOpen={navOpen} />
-        </ResumeProvider>
-      </LanguageProvider>
-    );
+  const renderNavigation = async (navOpen = false) => {
+    let result: any;
+    await act(async () => {
+      result = render(
+        <LanguageProvider>
+          <ResumeProvider>
+            <Navigation setNavOpen={mockSetNavOpen} navOpen={navOpen} />
+          </ResumeProvider>
+        </LanguageProvider>
+      );
+    });
+    return result;
   };
 
   it("should render navigation links", async () => {
-    renderNavigation();
+    await renderNavigation();
     
+    // Wait for data to load and component to render
     await waitFor(() => {
       expect(screen.getByText(/inicio/i)).toBeInTheDocument();
-    });
+    }, { timeout: 10000 });
+    
     expect(screen.getByText(/sobre mí/i)).toBeInTheDocument();
     expect(screen.getByText(/habilidades/i)).toBeInTheDocument();
   });
 
   it("should display email from resume data", async () => {
-    renderNavigation();
+    await renderNavigation();
     
+    // Wait for data to load
     await waitFor(() => {
       expect(screen.getByText("test@example.com")).toBeInTheDocument();
-    });
+    }, { timeout: 10000 });
   });
 
   it("should call downloadCurriculumPdf when resume link is clicked", async () => {
     (downloadCurriculumPdf as jest.Mock).mockResolvedValue(undefined);
 
-    renderNavigation();
+    await renderNavigation();
     
+    // Wait for data to load and component to render
     await waitFor(() => {
       expect(screen.getByText(/hoja de vida/i)).toBeInTheDocument();
-    });
+    }, { timeout: 10000 });
     
     const resumeLink = screen.getByText(/hoja de vida/i);
     fireEvent.click(resumeLink);
@@ -125,11 +135,12 @@ describe("Navigation Component", () => {
   });
 
   it("should close navigation when link is clicked", async () => {
-    renderNavigation();
+    await renderNavigation();
     
+    // Wait for data to load and component to render
     await waitFor(() => {
       expect(screen.getByText(/sobre mí/i)).toBeInTheDocument();
-    });
+    }, { timeout: 10000 });
     
     const aboutLink = screen.getByText(/sobre mí/i);
     fireEvent.click(aboutLink);

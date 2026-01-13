@@ -1,7 +1,6 @@
-import Image from "next/image";
 import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
-import Logo from "@/public/images/logo.png";
 import Link from "next/link";
+import Logo from "@/components/Logo";
 import shuffleLetters from "shuffle-letters";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -78,14 +77,55 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
   };
 
   useEffect(() => {
+    // Map para guardar el texto original de cada elemento
+    const originalTexts = new Map<HTMLElement, string>();
+    const activeTimeouts = new Map<HTMLElement, NodeJS.Timeout>();
+    
     const handleClassChange = (mutationsList: MutationRecord[], observer: MutationObserver) => {
       mutationsList.forEach((mutation) => {
         if (mutation.type === "attributes" && mutation.attributeName === "class") {
           const target = mutation.target as HTMLElement;
-          if (target.classList.contains("active")) {
-            const textElement = target.querySelector(".text");
-            if (textElement) {
-              shuffleLetters(textElement, { iterations: 5 });
+          const textElement = target.querySelector(".text") as HTMLElement;
+          
+          if (target.classList.contains("active") && textElement) {
+            // Limpiar timeout anterior si existe
+            const existingTimeout = activeTimeouts.get(textElement);
+            if (existingTimeout) {
+              clearTimeout(existingTimeout);
+              activeTimeouts.delete(textElement);
+            }
+            
+            // Guardar el texto original si no lo tenemos
+            if (!originalTexts.has(textElement)) {
+              originalTexts.set(textElement, textElement.textContent?.trim() || "");
+            }
+            
+            const originalText = originalTexts.get(textElement) || textElement.textContent?.trim() || "";
+            
+            // Aplicar shuffleLetters
+            shuffleLetters(textElement, { iterations: 5 });
+            
+            // Restaurar el texto original después de la animación
+            // shuffleLetters con 5 iteraciones típicamente toma ~500-800ms
+            const restoreTimeout = setTimeout(() => {
+              if (textElement && textElement.textContent !== originalText) {
+                textElement.textContent = originalText;
+              }
+              activeTimeouts.delete(textElement);
+            }, 1000); // Dar tiempo suficiente para que termine la animación
+            
+            activeTimeouts.set(textElement, restoreTimeout);
+          } else if (textElement && !target.classList.contains("active")) {
+            // Si el elemento ya no está activo, restaurar el texto inmediatamente
+            const existingTimeout = activeTimeouts.get(textElement);
+            if (existingTimeout) {
+              clearTimeout(existingTimeout);
+              activeTimeouts.delete(textElement);
+            }
+            
+            const originalText = originalTexts.get(textElement);
+            if (originalText && textElement.textContent !== originalText) {
+              textElement.textContent = originalText;
             }
           }
         }
@@ -101,6 +141,10 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
 
     return () => {
       observer.disconnect();
+      // Limpiar todos los timeouts pendientes
+      activeTimeouts.forEach((timeout) => clearTimeout(timeout));
+      activeTimeouts.clear();
+      originalTexts.clear();
     };
   }, []);
 
@@ -172,7 +216,9 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
   return (
     <>
       <nav ref={navRef} className={`navigation ${navOpen ? "opened" : ""}`} id="navigation">
-        <Image src={Logo} className="mb-4 d-xl-none" alt="logo" />
+        <div className="mb-4 d-xl-none">
+          <Logo showText={true} />
+        </div>
         <ul>
           <li onClick={() => setNavOpen(false)} className="nav-link">
             <Link href="#top" className="active">

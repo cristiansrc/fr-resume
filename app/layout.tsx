@@ -8,10 +8,18 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ResumeProvider } from "@/contexts/ResumeContext";
 import { ReCaptchaProvider } from "@/components/ReCaptchaProvider";
+import { DynamicHead } from "@/components/DynamicHead";
 
 export const metadata: Metadata = {
-  title: "Portify - Personal Portfolio Template",
-  description: "Personal Portfolio Template for developers",
+  title: "cristiansrc - Personal Portfolio",
+  description: "Personal Portfolio - Hoja de vida",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
 };
 type LayoutType = {
   children: React.ReactNode;
@@ -26,6 +34,7 @@ export default function RootLayout({ children }: Readonly<LayoutType>) {
         <LanguageProvider>
           <ResumeProvider>
             <ReCaptchaProvider>
+              <DynamicHead />
               <Bootstrap>
                 {children}
               </Bootstrap>

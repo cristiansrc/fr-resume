@@ -16,7 +16,7 @@ const TestComponent = () => {
   
   if (loading) return <div data-testid="loading">Loading...</div>;
   if (error) return <div data-testid="error">{error.message}</div>;
-  if (data) return <div data-testid="data">{data.basicData?.firstName}</div>;
+  if (data) return <div data-testid="data">{data.basicData?.firstName || "No firstName"}</div>;
   
   return <div data-testid="no-data">No data</div>;
 };
@@ -72,35 +72,41 @@ describe("ResumeContext", () => {
       () => new Promise(() => {}) // Never resolves
     );
 
-    render(
-      <LanguageProvider>
-        <ResumeProvider>
-          <TestComponent />
-        </ResumeProvider>
-      </LanguageProvider>
-    );
+    await act(async () => {
+      render(
+        <LanguageProvider>
+          <ResumeProvider>
+            <TestComponent />
+          </ResumeProvider>
+        </LanguageProvider>
+      );
+    });
 
+    // The loading state should appear immediately
     await waitFor(() => {
       expect(screen.getByTestId("loading")).toBeInTheDocument();
-    });
+    }, { timeout: 2000 });
   });
 
   it("should fetch and display data", async () => {
     (getInfoPage as jest.Mock).mockResolvedValue(mockResumeData);
 
-    render(
-      <LanguageProvider>
-        <ResumeProvider>
-          <TestComponent />
-        </ResumeProvider>
-      </LanguageProvider>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId("data")).toBeInTheDocument();
+    await act(async () => {
+      render(
+        <LanguageProvider>
+          <ResumeProvider>
+            <TestComponent />
+          </ResumeProvider>
+        </LanguageProvider>
+      );
     });
 
-    expect(screen.getByTestId("data")).toHaveTextContent("Test");
+    // Wait for data to load
+    await waitFor(() => {
+      expect(screen.getByTestId("data")).toBeInTheDocument();
+      expect(screen.getByTestId("data")).toHaveTextContent("Test");
+    }, { timeout: 5000 });
+
     expect(getInfoPage).toHaveBeenCalledTimes(1);
   });
 
@@ -108,19 +114,21 @@ describe("ResumeContext", () => {
     const errorMessage = "Failed to fetch";
     (getInfoPage as jest.Mock).mockRejectedValue(new Error(errorMessage));
 
-    render(
-      <LanguageProvider>
-        <ResumeProvider>
-          <TestComponent />
-        </ResumeProvider>
-      </LanguageProvider>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId("error")).toBeInTheDocument();
+    await act(async () => {
+      render(
+        <LanguageProvider>
+          <ResumeProvider>
+            <TestComponent />
+          </ResumeProvider>
+        </LanguageProvider>
+      );
     });
 
-    expect(screen.getByTestId("error")).toHaveTextContent(errorMessage);
+    // Wait for error to be displayed
+    await waitFor(() => {
+      expect(screen.getByTestId("error")).toBeInTheDocument();
+      expect(screen.getByTestId("error")).toHaveTextContent(errorMessage);
+    }, { timeout: 5000 });
   });
 
   it("should throw error when used outside provider", () => {

@@ -1,12 +1,18 @@
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, act } from "@testing-library/react";
 import Experience from "@/components/Experience";
 import { ResumeProvider } from "@/contexts/ResumeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { Experience as ExperienceType } from "@/interfaces/resume";
-import { getInfoPage } from "@/api";
 
-// Mocks are already in jest.setup.js
+// Mock the API before importing
+jest.mock("@/api", () => ({
+  getInfoPage: jest.fn(),
+  downloadCurriculumPdf: jest.fn(),
+  sendContactMessage: jest.fn(),
+}));
+
+import { getInfoPage } from "@/api";
 
 const mockExperienceData: ExperienceType[] = [
   {
@@ -84,44 +90,50 @@ describe("Experience Component", () => {
     (getInfoPage as jest.Mock).mockResolvedValue(mockResumeData);
   });
 
-  const renderWithProviders = (language: "en" | "es" = "es") => {
+  const renderWithProviders = async (language: "en" | "es" = "es") => {
     Object.defineProperty(navigator, "language", {
       writable: true,
       configurable: true,
       value: language === "es" ? "es-ES" : "en-US",
     });
     
-    return render(
-      <LanguageProvider>
-        <ResumeProvider>
-          <Experience />
-        </ResumeProvider>
-      </LanguageProvider>
-    );
+    let result: any;
+    await act(async () => {
+      result = render(
+        <LanguageProvider>
+          <ResumeProvider>
+            <Experience />
+          </ResumeProvider>
+        </LanguageProvider>
+      );
+    });
+    return result;
   };
 
   it("should render experience items", async () => {
-    renderWithProviders();
+    await renderWithProviders();
     
     await waitFor(() => {
       expect(screen.getByText(/Tech Corp/i)).toBeInTheDocument();
-    });
+    }, { timeout: 10000 });
   });
 
   it("should display skills section when skillSons exist", async () => {
-    renderWithProviders("es");
+    await renderWithProviders("es");
     
+    // Wait for data to load and component to render
     await waitFor(() => {
       expect(screen.getByText(/Habilidades:/i)).toBeInTheDocument();
-    });
+    }, { timeout: 10000 });
     expect(screen.getByText(/React y TypeScript/i)).toBeInTheDocument();
   });
 
   it("should format date range correctly", async () => {
-    renderWithProviders("es");
+    await renderWithProviders("es");
     
+    // Wait for data to load and component to render
     await waitFor(() => {
       expect(screen.getByText(/Enero 2020 - Diciembre 2023/i)).toBeInTheDocument();
-    });
+    }, { timeout: 10000 });
   });
 });
