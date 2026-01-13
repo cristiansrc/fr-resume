@@ -7,6 +7,7 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ResumeProvider } from "@/contexts/ResumeContext";
+import { ReCaptchaProvider } from "@/components/ReCaptchaProvider";
 
 export const metadata: Metadata = {
   title: "Portify - Personal Portfolio Template",
@@ -24,9 +25,11 @@ export default function RootLayout({ children }: Readonly<LayoutType>) {
       <body className={poppins.className}>
         <LanguageProvider>
           <ResumeProvider>
-            <Bootstrap>
-              {children}
-            </Bootstrap>
+            <ReCaptchaProvider>
+              <Bootstrap>
+                {children}
+              </Bootstrap>
+            </ReCaptchaProvider>
           </ResumeProvider>
         </LanguageProvider>
       </body>

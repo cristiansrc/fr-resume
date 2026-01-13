@@ -45,7 +45,10 @@
       "messagePlaceholder": "Your message",
       "submit": "Submit",
       "sending": "Sending...",
-      "success": "Success"
+      "success": "Success",
+      "recaptchaError": "reCAPTCHA verification failed. Please try again.",
+      "submitError": "Error sending message. Please try again.",
+      "validationError": "Please fill in all fields."
     }
   }
 }

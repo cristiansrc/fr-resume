@@ -16,6 +16,22 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
   const { language, setLanguage } = useLanguage();
   const { data } = useResume();
 
+  // Track previous language to detect changes
+  const prevLanguageRef = React.useRef<"en" | "es">(language);
+  
+  // Scroll to top when language changes
+  React.useEffect(() => {
+    if (prevLanguageRef.current !== language) {
+      prevLanguageRef.current = language;
+      // Scroll to top after language change
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }, 150);
+      });
+    }
+  }, [language]);
+
   const handleLanguageSwitch = (e: React.MouseEvent) => {
     e.preventDefault();
     setLanguage(language === "en" ? "es" : "en");
@@ -31,6 +47,34 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
       console.error("Error downloading resume:", error);
     }
     setNavOpen(false);
+  };
+
+  // Build LinkedIn URL with locale parameter for English
+  const getLinkedInUrl = (): string => {
+    if (!data?.basicData?.linkedin) return "";
+    
+    let baseUrl = data.basicData.linkedin.trim();
+    
+    if (language === "en") {
+      // Remove existing locale parameter if present
+      baseUrl = baseUrl.replace(/[?&]locale=[^&]*/g, "");
+      // Clean up trailing ? or /? if they exist
+      baseUrl = baseUrl.replace(/[\/\?]+$/, "");
+      
+      // Add locale parameter
+      // Check if URL already has query parameters
+      if (baseUrl.includes("?")) {
+        return `${baseUrl}&locale=en_US`;
+      } else {
+        return `${baseUrl}/?locale=en_US`;
+      }
+    } else {
+      // Remove locale parameter for Spanish
+      baseUrl = baseUrl.replace(/[?&]locale=[^&]*/g, "");
+      // Clean up trailing ? or /? if they exist
+      baseUrl = baseUrl.replace(/[\/\?]+$/, "");
+      return baseUrl;
+    }
   };
 
   useEffect(() => {
@@ -64,6 +108,66 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
     gsap.to(".navigation", { "--height": "100%", duration: 1, ease: "power1.inOut" });
     gsap.from(".nav-link", { duration: 0.8, delay: 0.5, opacity: 0, stagger: 0.1 });
   });
+
+  // Store the time when the component mounts to calculate relative delays
+  const mountTimeRef = useRef<number>(Date.now());
+  
+  // Animate LinkedIn and GitHub links when they appear (after data loads)
+  // They should appear after "Hoja de vida" (06), so LinkedIn (07) and GitHub (08)
+  // The initial animation starts with delay 0.5s and stagger 0.1s per item
+  useEffect(() => {
+    if (data?.basicData?.linkedin || data?.basicData?.github) {
+      // Wait a bit for DOM to update
+      const timer = setTimeout(() => {
+        const linkedInLink = navRef.current?.querySelector('[data-social="linkedin"]') as HTMLElement;
+        const githubLink = navRef.current?.querySelector('[data-social="github"]') as HTMLElement;
+        
+        // Calculate the correct delay based on position in the menu
+        // Initial delay: 0.5s, stagger: 0.1s per item
+        // "Hoja de vida" is 06, so it appears at 0.5 + (5 * 0.1) = 1.0s (0-indexed: position 5)
+        // LinkedIn is 07, so it should appear at 0.5 + (6 * 0.1) = 1.1s (0-indexed: position 6)
+        // GitHub is 08, so it should appear at 0.5 + (7 * 0.1) = 1.2s (0-indexed: position 7)
+        
+        const initialDelay = 0.5;
+        const staggerDelay = 0.1;
+        const linkedInPosition = 6; // 0-indexed position (7th item)
+        const githubPosition = 7; // 0-indexed position (8th item)
+        
+        // Calculate when these should appear relative to component mount
+        const linkedInTargetTime = initialDelay + (linkedInPosition * staggerDelay);
+        const githubTargetTime = initialDelay + (githubPosition * staggerDelay);
+        
+        // Calculate how much time has passed since mount
+        const timeSinceMount = (Date.now() - mountTimeRef.current) / 1000; // Convert to seconds
+        
+        // Calculate remaining delay needed (if data loaded late, use minimal delay)
+        const linkedInDelay = Math.max(0.05, linkedInTargetTime - timeSinceMount);
+        const githubDelay = Math.max(0.05, githubTargetTime - timeSinceMount);
+        
+        if (linkedInLink) {
+          gsap.set(linkedInLink, { opacity: 0 });
+          gsap.to(linkedInLink, {
+            duration: 0.8,
+            opacity: 1,
+            delay: linkedInDelay,
+            ease: "power2.out"
+          });
+        }
+        
+        if (githubLink) {
+          gsap.set(githubLink, { opacity: 0 });
+          gsap.to(githubLink, {
+            duration: 0.8,
+            opacity: 1,
+            delay: githubDelay,
+            ease: "power2.out"
+          });
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [data?.basicData?.linkedin, data?.basicData?.github]);
 
   return (
     <>
@@ -100,16 +204,20 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
               <span>06</span> <span className="text">{t("navigation.resume")}</span>{" "}
             </a>
           </li>
-          <li onClick={() => setNavOpen(false)} className="nav-link">
-            <a href="https://www.linkedin.com/in/cristiansrc" target="_blank" rel="noopener noreferrer">
-              <span>07</span> <span className="text">{t("navigation.linkedin")}</span>{" "}
-            </a>
-          </li>
-          <li onClick={() => setNavOpen(false)} className="nav-link">
-            <a href="https://github.com/cristiansrc" target="_blank" rel="noopener noreferrer">
-              <span>08</span> <span className="text">{t("navigation.github")}</span>{" "}
-            </a>
-          </li>
+          {data?.basicData?.linkedin && (
+            <li onClick={() => setNavOpen(false)} className="nav-link" data-social="linkedin">
+              <a href={getLinkedInUrl()} target="_blank" rel="noopener noreferrer">
+                <span>07</span> <span className="text">{t("navigation.linkedin")}</span>{" "}
+              </a>
+            </li>
+          )}
+          {data?.basicData?.github && (
+            <li onClick={() => setNavOpen(false)} className="nav-link" data-social="github">
+              <a href={data.basicData.github} target="_blank" rel="noopener noreferrer">
+                <span>08</span> <span className="text">{t("navigation.github")}</span>{" "}
+              </a>
+            </li>
+          )}
           <li onClick={handleLanguageSwitch} className="nav-link">
             <a href="#" onClick={(e) => e.preventDefault()}>
               <span>09</span> <span className="text">{t("navigation.switchLanguage")}</span>{" "}

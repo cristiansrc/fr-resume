@@ -50,23 +50,47 @@ const Hero = ({ classes }: { classes?: string }) => {
     const applySplitType = () => {
       if (!descriptionRef.current) return;
 
-      // Clean up any existing SplitType instance
-      const existingSplit = descriptionRef.current.querySelector('.split-line');
+      // First, clean up any existing SplitType instance
+      // SplitType adds classes like 'split-line', 'split-char', etc.
+      const existingSplit = descriptionRef.current.querySelector('.split-line, .split-char');
       if (existingSplit) {
-        // Restore original text
-        const originalText = descriptionRef.current.textContent || '';
-        descriptionRef.current.innerHTML = originalText;
+        // Restore original text by getting all text nodes
+        const textContent = descriptionRef.current.textContent || fullDescriptionText;
+        descriptionRef.current.textContent = textContent;
       }
 
-      // Create new SplitType instance
-      const desc = SplitType.create(descriptionRef.current).chars;
-      gsap.from(desc, { duration: 0.5, rotateY: 180, stagger: 0.05 });
+      // Ensure the text content matches what we expect
+      const expectedText = fullDescriptionText;
+      if (descriptionRef.current.textContent !== expectedText) {
+        descriptionRef.current.textContent = expectedText;
+      }
+
+      // Wait for DOM to be fully updated
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (!descriptionRef.current) return;
+          
+          // Double-check text is correct before applying SplitType
+          if (descriptionRef.current.textContent !== expectedText) {
+            descriptionRef.current.textContent = expectedText;
+          }
+          
+          try {
+            // Create new SplitType instance
+            const desc = SplitType.create(descriptionRef.current).chars;
+            gsap.from(desc, { duration: 0.5, rotateY: 180, stagger: 0.05 });
+          } catch (error) {
+            console.error("Error creating SplitType for description:", error);
+          }
+        });
+      });
     };
 
     let timer: NodeJS.Timeout;
-    let retryTimer: NodeJS.Timeout;
+    let retryCount = 0;
+    const maxRetries = 5;
 
-    // Use requestAnimationFrame to ensure DOM is updated, then wait a bit more
+    // Use requestAnimationFrame to ensure DOM is updated
     const rafId = requestAnimationFrame(() => {
       timer = setTimeout(() => {
         try {
@@ -76,17 +100,24 @@ const Hero = ({ classes }: { classes?: string }) => {
           const currentText = descriptionRef.current.textContent || '';
           if (!currentText || currentText.trim() === '') return;
           
-          // Check if text is complete - it should be at least as long as expected
-          if (currentText.length < fullDescriptionText.length * 0.8) {
-            // Text not ready yet, try again with a longer delay
-            retryTimer = setTimeout(() => {
+          // Check if text matches expected
+          const textMatches = currentText.trim() === fullDescriptionText.trim();
+          
+          if (!textMatches && retryCount < maxRetries) {
+            // Text not ready yet, try again
+            retryCount++;
+            timer = setTimeout(() => {
               if (descriptionRef.current) {
                 const retryText = descriptionRef.current.textContent || '';
-                if (retryText.length >= fullDescriptionText.length * 0.8) {
+                if (retryText.trim() === fullDescriptionText.trim()) {
+                  applySplitType();
+                } else {
+                  // Force update text if it still doesn't match
+                  descriptionRef.current.textContent = fullDescriptionText;
                   applySplitType();
                 }
               }
-            }, 200);
+            }, 100);
             return;
           }
 
@@ -94,13 +125,13 @@ const Hero = ({ classes }: { classes?: string }) => {
         } catch (error) {
           console.error("Error creating SplitType for description:", error);
         }
-      }, 400);
+      }, 50); // Small delay to ensure React has updated the DOM
     });
 
     return () => {
       cancelAnimationFrame(rafId);
       if (timer) clearTimeout(timer);
-      if (retryTimer) clearTimeout(retryTimer);
+      retryCount = 0;
     };
   }, [language, fullDescriptionText]);
   return (
@@ -121,7 +152,11 @@ const Hero = ({ classes }: { classes?: string }) => {
                 }}
               />
             </div>
-            <p ref={descriptionRef} className={`description description-${language}`}>
+            <p 
+              ref={descriptionRef} 
+              key={`description-${language}-${data?.basicData?.located || ''}`}
+              className={`description description-${language}`}
+            >
               {t("hero.basedIn")}{data?.basicData?.located ? (language === "es" ? data.basicData.located : data.basicData.locatedEng) : ""}
             </p>
           </div>

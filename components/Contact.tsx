@@ -3,14 +3,16 @@ import gsap from "gsap";
 import React, { useRef } from "react";
 import SectionTitle from "./SectionTitle";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import emailjs from "@emailjs/browser";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useResume } from "@/contexts/ResumeContext";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import { sendContactMessage } from "@/api";
 gsap.registerPlugin(ScrollTrigger);
 
 const Contact = () => {
   const { t } = useTranslation();
   const { data } = useResume();
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const [submitBtnState, setSubmitBtnState] = React.useState<"submit" | "sending" | "success">("submit");
   
   // Obtener el texto del botón basado en el estado actual y el idioma
@@ -66,23 +68,75 @@ const Contact = () => {
   });
   const form = useRef<HTMLFormElement>(null);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitBtnState("sending");
-    emailjs.sendForm(process.env.NEXT_PUBLIC_SERVICE_ID as string, process.env.NEXT_PUBLIC_TEMPLATE_ID as string, form.current!, { publicKey: process.env.NEXT_PUBLIC_PUBLIC_KEY as string }).then(
-      function () {
-        console.log("SUCCESS!");
-        form.current?.reset();
-        setSubmitBtnState("success");
-        setTimeout(function () {
+    
+    if (!form.current) {
+      return;
+    }
+
+    // Get form data
+    const formData = new FormData(form.current);
+    const name = formData.get("user_name") as string;
+    const email = formData.get("user_email") as string;
+    const message = formData.get("message") as string;
+
+    // Validate form data
+    if (!name || !email || !message) {
+      alert(t("contact.form.validationError") || "Por favor, completa todos los campos.");
+      return;
+    }
+
+    // Verify reCAPTCHA if available
+    if (!executeRecaptcha) {
+      console.warn("reCAPTCHA not loaded. Proceeding without verification.");
+      // Continue with form submission even if reCAPTCHA is not available
+    } else {
+      try {
+        // Execute reCAPTCHA v3
+        const token = await executeRecaptcha("contact_form");
+        
+        if (!token) {
+          console.error("reCAPTCHA verification failed");
           setSubmitBtnState("submit");
-        }, 3000);
-      },
-      function (error) {
+          alert(t("contact.form.recaptchaError") || "Por favor, verifica que no eres un robot.");
+          return;
+        }
+        
+        // Optional: Validate token on backend (you can add this later)
+        // For now, we'll proceed with the form submission
+      } catch (error) {
+        console.error("reCAPTCHA error:", error);
         setSubmitBtnState("submit");
-        console.log("FAILED...", error);
-      },
-    );
+        alert(t("contact.form.recaptchaError") || "Error al verificar reCAPTCHA. Por favor, intenta de nuevo.");
+        return;
+      }
+    }
+    
+    setSubmitBtnState("sending");
+    
+    try {
+      // Map form data to API format
+      const contactData = {
+        name: name.trim(),
+        email: email.trim(),
+        message: message.trim(),
+      };
+
+      // Send contact message to API
+      await sendContactMessage(contactData);
+      
+      console.log("SUCCESS! Message sent.");
+      form.current.reset();
+      setSubmitBtnState("success");
+      setTimeout(() => {
+        setSubmitBtnState("submit");
+      }, 3000);
+    } catch (error) {
+      setSubmitBtnState("submit");
+      console.error("FAILED...", error);
+      alert(t("contact.form.submitError") || "Error al enviar el mensaje. Por favor, intenta de nuevo.");
+    }
   };
   return (
     <section id="contact" className="contact section position-relative">

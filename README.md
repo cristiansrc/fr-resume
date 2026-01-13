@@ -9,6 +9,7 @@ Portafolio web personal desarrollado con Next.js y React, que muestra informaci�
 - **Diseño Moderno**: Interfaz moderna con animaciones GSAP y efectos visuales
 - **Responsive**: Diseño adaptativo para todos los dispositivos
 - **Descarga de CV**: Descarga del curriculum vitae en PDF según el idioma seleccionado
+- **Protección contra Spam**: Google reCAPTCHA v3 integrado en el formulario de contacto (invisible y no intrusivo)
 - **Secciones Incluidas**:
   - Hero/Top: Presentación principal con efecto typewriter
   - About Me: Información personal y experiencia
@@ -26,6 +27,7 @@ Portafolio web personal desarrollado con Next.js y React, que muestra informaci�
 - **Otras librerías**:
   - React Typewriter Effect
   - EmailJS (formulario de contacto)
+  - Google reCAPTCHA v3 (protección contra spam)
   - Phosphor Icons
 
 ## 📦 Instalación
@@ -44,6 +46,10 @@ npm install
 3. Crea el archivo `.env.local` en la raíz del proyecto:
 ```env
 NEXT_PUBLIC_RESUME_API_BASE_URL=http://localhost:8080/v1/ms-resume
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=tu_clave_site_key_de_google_recaptcha
+NEXT_PUBLIC_SERVICE_ID=tu_service_id_de_emailjs
+NEXT_PUBLIC_TEMPLATE_ID=tu_template_id_de_emailjs
+NEXT_PUBLIC_PUBLIC_KEY=tu_public_key_de_emailjs
 ```
 
 4. Ejecuta el servidor de desarrollo:
@@ -60,6 +66,45 @@ npm run dev
 Crea un archivo `.env.local` con las siguientes variables:
 
 - `NEXT_PUBLIC_RESUME_API_BASE_URL`: URL base del servicio REST API para obtener los datos del resume
+- `NEXT_PUBLIC_SERVICE_ID`: ID del servicio de EmailJS
+- `NEXT_PUBLIC_TEMPLATE_ID`: ID de la plantilla de EmailJS
+- `NEXT_PUBLIC_PUBLIC_KEY`: Clave pública de EmailJS
+
+#### Configuración de Google reCAPTCHA v3
+
+**Variables de entorno requeridas:**
+- `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` (requerido): Clave pública de Google reCAPTCHA v3
+
+**Variables de entorno opcionales:**
+- `NEXT_PUBLIC_RECAPTCHA_LANGUAGE` (opcional, default: `"es"`): Idioma del reCAPTCHA. Valores válidos: `"es"`, `"en"`, etc.
+- `NEXT_PUBLIC_RECAPTCHA_SCRIPT_ASYNC` (opcional, default: `"true"`): Cargar el script de forma asíncrona. Valores: `"true"` o `"false"`
+- `NEXT_PUBLIC_RECAPTCHA_SCRIPT_DEFER` (opcional, default: `"true"`): Cargar el script con defer. Valores: `"true"` o `"false"`
+- `NEXT_PUBLIC_RECAPTCHA_SCRIPT_APPEND_TO` (opcional, default: `"head"`): Dónde insertar el script. Valores: `"head"` o `"body"`
+
+**Ejemplo de configuración completa:**
+```env
+# Requerido
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=tu_clave_site_key_de_google_recaptcha
+
+# Opcionales (con valores por defecto)
+NEXT_PUBLIC_RECAPTCHA_LANGUAGE=es
+NEXT_PUBLIC_RECAPTCHA_SCRIPT_ASYNC=true
+NEXT_PUBLIC_RECAPTCHA_SCRIPT_DEFER=true
+NEXT_PUBLIC_RECAPTCHA_SCRIPT_APPEND_TO=head
+```
+
+**Pasos para obtener las claves de reCAPTCHA:**
+
+1. Visita [Google reCAPTCHA Admin Console](https://www.google.com/recaptcha/admin)
+2. Haz clic en "+" para crear un nuevo sitio
+3. Completa el formulario:
+   - **Etiqueta**: Nombre descriptivo para tu sitio
+   - **Tipo de reCAPTCHA**: Selecciona **reCAPTCHA v3**
+   - **Dominios**: Agrega tus dominios (ej: `localhost`, `tudominio.com`)
+4. Acepta los términos y haz clic en "Enviar"
+5. Copia la **Clave del sitio** y agrégala a `.env.local` como `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`
+
+**Nota**: reCAPTCHA v3 es invisible y funciona en segundo plano. Solo solicita verificación adicional si detecta comportamiento sospechoso. Si no se proporciona la clave, el formulario funcionará sin protección (se mostrará un warning en consola).
 
 ### API Endpoints Utilizados
 
@@ -162,7 +207,7 @@ Muestra las habilidades técnicas con barras de progreso, organizadas en categor
 Historial profesional con fechas formateadas, descripciones y habilidades utilizadas.
 
 ### Contact
-Formulario de contacto y enlaces a redes sociales (LinkedIn, GitHub).
+Formulario de contacto protegido con Google reCAPTCHA v3 y enlaces a redes sociales (LinkedIn, GitHub).
 
 ### Navigation
 Menú lateral con navegación a todas las secciones y opción para cambiar de idioma.
@@ -176,6 +221,13 @@ Las fechas se formatean correctamente evitando problemas de zona horaria:
 
 ### Descarga de PDF
 El botón de descarga del curriculum llama al endpoint `/public/curriculum/:language` y descarga el PDF según el idioma actual.
+
+### Protección del Formulario de Contacto
+El formulario de contacto está protegido con Google reCAPTCHA v3, que:
+- Funciona de forma invisible en segundo plano
+- No requiere interacción del usuario en la mayoría de los casos
+- Solo solicita verificación adicional si detecta comportamiento sospechoso
+- Valida automáticamente antes de enviar el formulario
 
 ### Animaciones
 - Animaciones GSAP para elementos al hacer scroll

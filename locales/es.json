@@ -45,7 +45,10 @@
       "messagePlaceholder": "Tu mensaje",
       "submit": "Enviar",
       "sending": "Enviando...",
-      "success": "Éxito"
+      "success": "Éxito",
+      "recaptchaError": "Error al verificar reCAPTCHA. Por favor, intenta de nuevo.",
+      "submitError": "Error al enviar el mensaje. Por favor, intenta de nuevo.",
+      "validationError": "Por favor, completa todos los campos."
     }
   }
 }
