@@ -1,0 +1,51 @@
+{
+  "navigation": {
+    "top": "inicio",
+    "aboutMe": "sobre mí",
+    "myServices": "mis servicios",
+    "skills": "habilidades",
+    "experiences": "experiencias",
+    "contact": "contacto",
+    "resume": "Hoja de vida",
+    "linkedin": "LinkedIn",
+    "github": "GitHub",
+    "switchLanguage": "English version"
+  },
+  "hero": {
+    "basedIn": "ubicado en ",
+    "nextChapter": "Siguiente Capítulo"
+  },
+  "aboutMe": {
+    "subtitle": "Algunas Palabras Sobre Mí",
+    "title": "Conóceme Más",
+    "dateOfBirth": "Fecha de Nacimiento:",
+    "yearsOfExperience": "Años de experiencia",
+    "overlayText": "Sobre Mí"
+  },
+  "attainments": {
+    "highlightExpertise": "Destaca Mi Experiencia en:",
+    "overlayText": "habilidades"
+  },
+  "experience": {
+    "subtitle": "Destaca Mis Experiencias Clave",
+    "title": "Mi Experiencia",
+    "overlayText": "experiencias"
+  },
+  "contact": {
+    "subtitle": "Pongámonos en Contacto",
+    "title": "Contáctame",
+    "leaveMessage": "Deja un Mensaje",
+    "overlayText": "contacto",
+    "form": {
+      "name": "Nombre",
+      "email": "Correo",
+      "message": "Mensaje",
+      "namePlaceholder": "Tu nombre",
+      "emailPlaceholder": "Tu correo electrónico",
+      "messagePlaceholder": "Tu mensaje",
+      "submit": "Enviar",
+      "sending": "Enviando...",
+      "success": "Éxito"
+    }
+  }
+}
