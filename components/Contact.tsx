@@ -5,15 +5,18 @@ import SectionTitle from "./SectionTitle";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useResume } from "@/contexts/ResumeContext";
-import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import { useLoading } from "@/contexts/LoadingContext";
 import { sendContactMessage } from "@/api";
+import { solveChallenge } from "altcha-lib";
+import SuccessPopup from "./SuccessPopup";
 gsap.registerPlugin(ScrollTrigger);
 
 const Contact = () => {
   const { t } = useTranslation();
-  const { data } = useResume();
-  const { executeRecaptcha } = useGoogleReCaptcha();
+  const { data, loading: resumeLoading } = useResume();
+  const { setLoading } = useLoading();
   const [submitBtnState, setSubmitBtnState] = React.useState<"submit" | "sending" | "success">("submit");
+  const [showSuccessPopup, setShowSuccessPopup] = React.useState(false);
   
   // Obtener el texto del botón basado en el estado actual y el idioma
   const getSubmitBtnText = () => {
@@ -26,6 +29,9 @@ const Contact = () => {
   };
   
   useGSAP(() => {
+    // Solo ejecutar animaciones cuando el loading inicial haya terminado
+    if (resumeLoading || !data) return;
+
     gsap.fromTo(
       ".section-title-overlay-text",
       { y: "50%" },
@@ -65,7 +71,7 @@ const Contact = () => {
         trigger: ".contact-input",
       },
     });
-  });
+  }, { dependencies: [resumeLoading, data] });
   const form = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -87,59 +93,131 @@ const Contact = () => {
       return;
     }
 
-    // Verify reCAPTCHA if available
-    if (!executeRecaptcha) {
-      console.warn("reCAPTCHA not loaded. Proceeding without verification.");
-      // Continue with form submission even if reCAPTCHA is not available
-    } else {
-      try {
-        // Execute reCAPTCHA v3
-        const token = await executeRecaptcha("contact_form");
-        
-        if (!token) {
-          console.error("reCAPTCHA verification failed");
-          setSubmitBtnState("submit");
-          alert(t("contact.form.recaptchaError") || "Por favor, verifica que no eres un robot.");
-          return;
-        }
-        
-        // Optional: Validate token on backend (you can add this later)
-        // For now, we'll proceed with the form submission
-      } catch (error) {
-        console.error("reCAPTCHA error:", error);
-        setSubmitBtnState("submit");
-        alert(t("contact.form.recaptchaError") || "Error al verificar reCAPTCHA. Por favor, intenta de nuevo.");
-        return;
-      }
+    // Validate that altchaChallenge is available
+    if (!data?.altchaChallenge) {
+      alert(t("contact.form.altchaError") || "Error: No se pudo obtener el challenge de seguridad. Por favor, recarga la página.");
+      return;
     }
     
     setSubmitBtnState("sending");
+    setLoading(true);
     
     try {
+      // Resolve Altcha challenge
+      let { challenge, salt, algorithm, signature } = data.altchaChallenge;
+      
+      // Clean challenge if it has "challenge" suffix (backend bug workaround)
+      // The challenge should be a hex hash, not a string with "challenge" at the end
+      if (challenge && challenge.endsWith("challenge")) {
+        challenge = challenge.replace(/challenge$/i, "");
+      }
+      
+      // Validate challenge format (should be hex string)
+      if (!challenge || !/^[0-9a-f]+$/i.test(challenge)) {
+        throw new Error("Formato de challenge inválido recibido del servidor.");
+      }
+      
+      // Validate salt format
+      if (!salt || !/^[0-9a-f]+$/i.test(salt)) {
+        throw new Error("Formato de salt inválido recibido del servidor.");
+      }
+      
+      // Start with smaller maxNumber for faster resolution
+      // Most challenges are solvable within 100k-500k range
+      const maxNumbers = [100_000, 500_000, 1_000_000, 5_000_000, 10_000_000];
+      
+      let solution = null;
+      let lastError = null;
+      
+      // Try solving with increasing maxNumber values
+      for (let i = 0; i < maxNumbers.length; i++) {
+        const maxNumber = maxNumbers[i];
+        // Add timeout to prevent hanging (30 seconds per attempt for smaller ranges, 60 for larger)
+        // Aumentado porque la resolución puede tomar tiempo
+        const timeout = maxNumber <= 1_000_000 ? 30000 : 60000;
+        
+        try {
+          const { controller, promise } = solveChallenge(
+            challenge,
+            salt,
+            algorithm || "SHA-256", // Default to SHA-256 if not specified
+            maxNumber,
+            0 // start from 0
+          );
+          
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => {
+              controller.abort(); // Abort the challenge solving
+              reject(new Error("Timeout solving challenge"));
+            }, timeout);
+          });
+          
+          try {
+            solution = await Promise.race([promise, timeoutPromise]) as any;
+          } catch (raceError: any) {
+            // If it's a timeout, continue to next attempt
+            if (raceError.message === "Timeout solving challenge") {
+              throw raceError;
+            }
+            throw raceError;
+          }
+          
+          if (solution && solution.number !== undefined && solution.number !== null) {
+            break;
+          }
+        } catch (error: any) {
+          lastError = error;
+          // Continue to next maxNumber
+        }
+      }
+      
+      if (!solution || solution.number === undefined || solution.number === null) {
+        throw new Error("No se pudo resolver el challenge de Altcha. Por favor, intenta de nuevo.");
+      }
+
+      // Create the altcha payload string (JSON stringified)
+      // Use original challenge from server (not cleaned) for the payload
+      const originalChallenge = data.altchaChallenge.challenge;
+      const altchaPayloadJson = JSON.stringify({
+        algorithm: algorithm || "SHA-256",
+        challenge: originalChallenge, // Send original challenge back to server
+        number: solution.number,
+        salt: salt,
+        signature: signature,
+      });
+      
+      // Encode to Base64 as the backend expects Base64-encoded JSON
+      const altchaPayload = btoa(altchaPayloadJson);
+
       // Map form data to API format
       const contactData = {
         name: name.trim(),
         email: email.trim(),
         message: message.trim(),
+        altcha: altchaPayload,
       };
 
       // Send contact message to API
       await sendContactMessage(contactData);
       
-      console.log("SUCCESS! Message sent.");
+      // Reset form and show success popup
       form.current.reset();
-      setSubmitBtnState("success");
-      setTimeout(() => {
-        setSubmitBtnState("submit");
-      }, 3000);
+      setSubmitBtnState("submit");
+      setShowSuccessPopup(true);
     } catch (error) {
       setSubmitBtnState("submit");
-      console.error("FAILED...", error);
       alert(t("contact.form.submitError") || "Error al enviar el mensaje. Por favor, intenta de nuevo.");
+    } finally {
+      setLoading(false);
     }
   };
+  const handleCloseSuccessPopup = () => {
+    setShowSuccessPopup(false);
+  };
+
   return (
     <section id="contact" className="contact section position-relative">
+      {showSuccessPopup && <SuccessPopup onClose={handleCloseSuccessPopup} />}
       <span className="section-title-overlay-text">{t("contact.overlayText")}</span>
       <SectionTitle subtitle={t("contact.subtitle")} title={t("contact.title")} />
 

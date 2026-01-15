@@ -10,3 +10,4 @@ export * from "./Experience";
 export * from "./Education";
 export * from "./InfoPageResponse";
 export * from "./CurriculumLanguage";
+export * from "./AltchaChallenge";

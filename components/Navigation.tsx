@@ -7,6 +7,7 @@ import gsap from "gsap";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useResume } from "@/contexts/ResumeContext";
+import { useLoading } from "@/contexts/LoadingContext";
 import { downloadCurriculumPdf } from "@/api";
 
 const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateAction<boolean>>; navOpen: boolean }) => {
@@ -14,6 +15,7 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
   const { t } = useTranslation();
   const { language, setLanguage } = useLanguage();
   const { data } = useResume();
+  const { setLoading } = useLoading();
 
   // Track previous language to detect changes
   const prevLanguageRef = React.useRef<"en" | "es">(language);
@@ -41,11 +43,14 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
     e.preventDefault();
     const lang = language === "es" ? "spanish" : "english";
     try {
+      setLoading(true);
       await downloadCurriculumPdf(lang);
     } catch (error) {
       console.error("Error downloading resume:", error);
+    } finally {
+      setLoading(false);
+      setNavOpen(false);
     }
-    setNavOpen(false);
   };
 
   // Build LinkedIn URL with locale parameter for English

@@ -6,17 +6,29 @@ import AboutMe from "@/components/AboutMe";
 import Attainments from "@/components/Attainments";
 import Experience from "@/components/Experience";
 import Contact from "@/components/Contact";
+import Loading from "@/components/Loading";
+import ErrorPopup from "@/components/ErrorPopup";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useResume } from "@/contexts/ResumeContext";
 
 export default function Home() {
   const [navOpen, setNavOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
   const { language } = useLanguage();
-  const { data } = useResume();
+  const { data, loading, error } = useResume();
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+
+  // Obtener URL de LinkedIn desde variables de entorno
+  const linkedinUrl = process.env.NEXT_PUBLIC_LINKEDIN_URL || "https://www.linkedin.com/in/cristiansrc";
+
+  const handleRedirectToLinkedIn = () => {
+    window.location.href = linkedinUrl;
+  };
 
   useEffect(() => {
+    // Solo ejecutar en el cliente
+    if (typeof window === "undefined") return;
+
     const savedColor = localStorage.getItem("color");
     if (savedColor) {
       document.documentElement.style.setProperty("--primary", savedColor);
@@ -25,12 +37,21 @@ export default function Home() {
     if (savedDir) {
       document.documentElement.dir = savedDir;
     }
-    setLoading(false);
   }, []);
+
+  // Marcar cuando el loading inicial termine
+  useEffect(() => {
+    if (!loading && data) {
+      // Pequeño delay para asegurar que el DOM esté listo
+      setTimeout(() => {
+        setInitialLoadComplete(true);
+      }, 100);
+    }
+  }, [loading, data]);
 
   // Inicializar ScrollSpy usando Intersection Observer API
   useEffect(() => {
-    if (loading) return;
+    if (!initialLoadComplete) return;
 
     const sections = ["top", "about_me", "attainments", "experience", "contact"];
     let observer: IntersectionObserver | null = null;
@@ -209,17 +230,25 @@ export default function Home() {
         throttledScrollHandler = null;
       }
     };
-  }, [loading, language, data]); // Reinicializar cuando cambie el idioma o se carguen los datos
+  }, [initialLoadComplete, language, data]); // Reinicializar cuando cambie el idioma o se carguen los datos
 
-  if (loading) {
+  // Mostrar error popup si hay error al cargar el servicio inicial
+  if (error && !loading) {
+    return <ErrorPopup onRedirect={handleRedirectToLinkedIn} />;
+  }
+
+  // Mostrar loading mientras carga el servicio inicial
+  if (loading || !initialLoadComplete) {
     return (
-      <div className="loader-container w-100  d-flex align-items-center justify-content-center">
-        <div className="loader"></div>;
+      <div className="loader-container w-100 d-flex align-items-center justify-content-center">
+        <div className="loader"></div>
       </div>
     );
   }
+
   return (
     <>
+      <Loading />
       <Header navOpen={navOpen} setNavOpen={setNavOpen} />
 
       {/* <!-- navigation --> */}

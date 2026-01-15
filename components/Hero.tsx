@@ -9,32 +9,40 @@ import gsap from "gsap";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useResume } from "@/contexts/ResumeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLoading } from "@/contexts/LoadingContext";
 import { downloadCurriculumPdf } from "@/api";
 
 const Hero = ({ classes }: { classes?: string }) => {
   const { t } = useTranslation();
-  const { data } = useResume();
+  const { data, loading: resumeLoading } = useResume();
   const { language } = useLanguage();
+  const { setLoading } = useLoading();
   const descriptionRef = useRef<HTMLParagraphElement>(null);
   
   const handleWorkClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const lang = language === "es" ? "spanish" : "english";
     try {
+      setLoading(true);
       await downloadCurriculumPdf(lang);
     } catch (error) {
       console.error("Error downloading curriculum:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useGSAP(() => {
+    // Solo ejecutar animaciones cuando el loading inicial haya terminado
+    if (resumeLoading || !data) return;
+
     gsap.from(".img-wrapper", { duration: 1.5, scale: 1.5, ease: "back", delay: 0.3, opacity: 0 });
     gsap.from(".work-btn", { duration: 1.2, scale: 0, opacity: 0, ease: "bounce" });
     gsap.from(".contact-btn", { duration: 1.2, scale: 0, opacity: 0, ease: "bounce" });
 
     const freelancer = SplitType.create(".freelancer").chars;
     gsap.from(freelancer, { duration: 1.5, rotateX: 180, opacity: 0, ease: "bounce", stagger: 0.05 });
-  });
+  }, { dependencies: [resumeLoading, data] });
 
   // Calculate the full text that should be displayed
   const locationText = data?.basicData?.located 

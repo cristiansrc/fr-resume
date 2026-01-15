@@ -13,9 +13,12 @@ gsap.registerPlugin(ScrollTrigger);
 
 const Attainments = () => {
   const { t } = useTranslation();
-  const { data } = useResume();
+  const { data, loading: resumeLoading } = useResume();
   const { language } = useLanguage();
   useGSAP(() => {
+    // Solo ejecutar animaciones cuando el loading inicial haya terminado
+    if (resumeLoading || !data) return;
+
     gsap.from(".design-row-item", {
       opacity: 0,
       scale: 0,
@@ -50,7 +53,7 @@ const Attainments = () => {
         end: "top 20%",
       },
     });
-  });
+  }, { dependencies: [resumeLoading, data] });
   const skills = data?.skills || [];
 
   return (
