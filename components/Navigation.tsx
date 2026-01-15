@@ -82,11 +82,34 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
   };
 
   useEffect(() => {
-    // Map para guardar el texto original de cada elemento
-    const originalTexts = new Map<HTMLElement, string>();
     const activeTimeouts = new Map<HTMLElement, NodeJS.Timeout>();
     
-    const handleClassChange = (mutationsList: MutationRecord[], observer: MutationObserver) => {
+    // Mapeo de los elementos a sus claves de traducción
+    const getTranslationKey = (textElement: HTMLElement): string | null => {
+      const linkElement = textElement.closest('.nav-link');
+      if (!linkElement) return null;
+      
+      const text = textElement.textContent?.trim();
+      
+      // Identificar por el contenido del span numérico hermano
+      const numberSpan = linkElement.querySelector('span:first-child');
+      const number = numberSpan?.textContent?.trim();
+      
+      switch(number) {
+        case '01': return 'navigation.top';
+        case '02': return 'navigation.aboutMe';
+        case '03': return 'navigation.skills';
+        case '04': return 'navigation.experiences';
+        case '05': return 'navigation.contact';
+        case '06': return 'navigation.resume';
+        case '07': return 'navigation.linkedin';
+        case '08': return 'navigation.github';
+        case '09': return 'navigation.switchLanguage';
+        default: return null;
+      }
+    };
+    
+    const handleClassChange = (mutationsList: MutationRecord[]) => {
       mutationsList.forEach((mutation) => {
         if (mutation.type === "attributes" && mutation.attributeName === "class") {
           const target = mutation.target as HTMLElement;
@@ -100,38 +123,22 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
               activeTimeouts.delete(textElement);
             }
             
-            // Guardar el texto original si no lo tenemos
-            if (!originalTexts.has(textElement)) {
-              originalTexts.set(textElement, textElement.textContent?.trim() || "");
-            }
-            
-            const originalText = originalTexts.get(textElement) || textElement.textContent?.trim() || "";
+            // Obtener la clave de traducción para este elemento
+            const translationKey = getTranslationKey(textElement);
             
             // Aplicar shuffleLetters
             shuffleLetters(textElement, { iterations: 5 });
             
-            // Restaurar el texto original después de la animación
-            // shuffleLetters con 5 iteraciones típicamente toma ~500-800ms
+            // Restaurar el texto traducido correcto después de la animación
             const restoreTimeout = setTimeout(() => {
-              if (textElement && textElement.textContent !== originalText) {
-                textElement.textContent = originalText;
+              if (textElement && translationKey) {
+                // Obtener el texto traducido actual directamente
+                textElement.textContent = t(translationKey as any);
               }
               activeTimeouts.delete(textElement);
-            }, 1000); // Dar tiempo suficiente para que termine la animación
+            }, 1000);
             
             activeTimeouts.set(textElement, restoreTimeout);
-          } else if (textElement && !target.classList.contains("active")) {
-            // Si el elemento ya no está activo, restaurar el texto inmediatamente
-            const existingTimeout = activeTimeouts.get(textElement);
-            if (existingTimeout) {
-              clearTimeout(existingTimeout);
-              activeTimeouts.delete(textElement);
-            }
-            
-            const originalText = originalTexts.get(textElement);
-            if (originalText && textElement.textContent !== originalText) {
-              textElement.textContent = originalText;
-            }
           }
         }
       });
@@ -146,12 +153,17 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
 
     return () => {
       observer.disconnect();
-      // Limpiar todos los timeouts pendientes
-      activeTimeouts.forEach((timeout) => clearTimeout(timeout));
+      // Limpiar todos los timeouts pendientes y restaurar textos correctos
+      activeTimeouts.forEach((timeout, textElement) => {
+        clearTimeout(timeout);
+        const translationKey = getTranslationKey(textElement);
+        if (translationKey) {
+          textElement.textContent = t(translationKey as any);
+        }
+      });
       activeTimeouts.clear();
-      originalTexts.clear();
     };
-  }, []);
+  }, [language, t]);
 
   useGSAP(() => {
     gsap.to(".navigation", { "--height": "100%", duration: 1, ease: "power1.inOut" });
