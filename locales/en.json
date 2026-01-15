@@ -48,7 +48,21 @@
       "success": "Success",
       "recaptchaError": "reCAPTCHA verification failed. Please try again.",
       "submitError": "Error sending message. Please try again.",
-      "validationError": "Please fill in all fields."
+      "validationError": "Please fill in all fields.",
+      "altchaError": "Error: Could not get security challenge. Please reload the page."
+    },
+    "success": {
+      "title": "Message Sent!",
+      "message": "Thank you for contacting me. I have received your message and will respond as soon as possible.",
+      "close": "Close"
     }
+  },
+  "error": {
+    "title": "Page Not Available",
+    "message": "Sorry, the page is not available at this time. Please redirect to my LinkedIn profile to contact me.",
+    "redirecting": "Redirecting in",
+    "second": "second",
+    "seconds": "seconds",
+    "goToLinkedIn": "Go to LinkedIn"
   }
 }

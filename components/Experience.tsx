@@ -9,21 +9,26 @@ import SectionOverlayText from "./SectionOverlayText";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useResume } from "@/contexts/ResumeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLoading } from "@/contexts/LoadingContext";
 import { formatDateRange } from "@/utils/dateFormatter";
 import { downloadCurriculumPdf } from "@/api";
 
 const Experience = () => {
   const { t } = useTranslation();
-  const { data } = useResume();
+  const { data, loading: resumeLoading } = useResume();
   const { language } = useLanguage();
+  const { setLoading } = useLoading();
 
   const handleDownloadCv = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const lang = language === "es" ? "spanish" : "english";
     try {
+      setLoading(true);
       await downloadCurriculumPdf(lang);
     } catch (error) {
       console.error("Error downloading curriculum:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -54,6 +59,9 @@ const Experience = () => {
   };
 
   useGSAP(() => {
+    // Solo ejecutar animaciones cuando el loading inicial haya terminado
+    if (resumeLoading || !data) return;
+
     gsap.from(".experience-item", {
       opacity: 0,
       duration: 1,
@@ -85,7 +93,7 @@ const Experience = () => {
         trigger: ".experience-wrapper",
       },
     });
-  });
+  }, { dependencies: [resumeLoading, data] });
   return (
     <section id="experience" className="experience section position-relative">
       <SectionOverlayText text={t("experience.overlayText")} />

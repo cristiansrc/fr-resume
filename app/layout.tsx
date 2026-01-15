@@ -7,7 +7,7 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ResumeProvider } from "@/contexts/ResumeContext";
-import { ReCaptchaProvider } from "@/components/ReCaptchaProvider";
+import { LoadingProvider } from "@/contexts/LoadingContext";
 import { DynamicHead } from "@/components/DynamicHead";
 
 export const metadata: Metadata = {
@@ -29,16 +29,16 @@ gsap.registerPlugin(useGSAP);
 gsap.registerPlugin(ScrollTrigger);
 export default function RootLayout({ children }: Readonly<LayoutType>) {
   return (
-    <html lang="en">
-      <body className={poppins.className}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={poppins.className} suppressHydrationWarning>
         <LanguageProvider>
           <ResumeProvider>
-            <ReCaptchaProvider>
+            <LoadingProvider>
               <DynamicHead />
               <Bootstrap>
                 {children}
               </Bootstrap>
-            </ReCaptchaProvider>
+            </LoadingProvider>
           </ResumeProvider>
         </LanguageProvider>
       </body>
