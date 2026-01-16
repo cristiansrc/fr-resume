@@ -26,7 +26,6 @@ const Bootstrap = ({ children }: { children: React.ReactNode }) => {
       // Configurar GSAP para usar requestAnimationFrame de manera más eficiente
       gsap.config({
         nullTargetWarn: false, // Silenciar warnings de targets null
-        trialWarn: false,
       });
       
       // Silenciar warnings de GSAP cuando los targets no se encuentran

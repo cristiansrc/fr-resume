@@ -6,7 +6,7 @@ import { useGSAP } from "@gsap/react";
 gsap.registerPlugin(ScrollTrigger);
 
 const SectionOverlayText = ({ text }: { text: string }) => {
-  const sectionTitleRef = useRef(null);
+  const sectionTitleRef = useRef<HTMLElement>(null);
 
   useGSAP(() => {
     const element = sectionTitleRef.current;
@@ -32,22 +32,22 @@ const SectionOverlayText = ({ text }: { text: string }) => {
           fastScrollEnd: true, // Optimizar fin de scroll para Firefox
           // Aplicar will-change solo cuando la animación esté activa
           onEnter: () => {
-            if (element instanceof HTMLElement) {
+            if (element) {
               element.style.willChange = "transform";
             }
           },
           onLeave: () => {
-            if (element instanceof HTMLElement) {
+            if (element) {
               element.style.willChange = "auto";
             }
           },
           onEnterBack: () => {
-            if (element instanceof HTMLElement) {
+            if (element) {
               element.style.willChange = "transform";
             }
           },
           onLeaveBack: () => {
-            if (element instanceof HTMLElement) {
+            if (element) {
               element.style.willChange = "auto";
             }
           },
