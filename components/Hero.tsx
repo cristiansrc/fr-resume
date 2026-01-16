@@ -261,6 +261,7 @@ const Hero = ({ classes }: { classes?: string }) => {
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
               style={{ minWidth: "240px", textAlign: "center" }}
+              aria-label={language === "es" ? "Descargar Hoja de vida" : "Download Resume"}
             >
               {isHovering 
                 ? (language === "es" ? "descargar_hv.json()" : "download_hv.json()")
@@ -272,6 +273,7 @@ const Hero = ({ classes }: { classes?: string }) => {
               href="#contact" 
               className="btn contact-btn text-capitalize btn-outline-secondary"
               style={{ minWidth: "240px", textAlign: "center" }}
+              aria-label={data?.home?.buttonContactLabel ? (language === "es" ? data.home.buttonContactLabel : data.home.buttonContactLabelEng) : "contact me"}
             >
               {data?.home?.buttonContactLabel ? (language === "es" ? data.home.buttonContactLabel : data.home.buttonContactLabelEng) : "contact me"}
             </Link>

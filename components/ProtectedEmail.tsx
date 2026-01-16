@@ -352,6 +352,11 @@ const ProtectedEmail: React.FC<ProtectedEmailProps> = ({
   const displayEmail = emailRef.current && emailRef.current !== fallback 
     ? emailRef.current 
     : (decodedEmail || fallback);
+  
+  // Email real para lectores de pantalla (siempre disponible si existe)
+  const accessibleEmail = emailRef.current && emailRef.current !== fallback 
+    ? emailRef.current 
+    : decodedEmail;
 
   if (asLink) {
     return (
@@ -359,17 +364,24 @@ const ProtectedEmail: React.FC<ProtectedEmailProps> = ({
         href={`mailto:${displayEmail}`} 
         className={className}
         ref={containerRef as any}
+        aria-label={accessibleEmail ? `Email: ${accessibleEmail}` : "Email contact"}
       >
-        {showIcon && <i className={iconClassName}></i>}
-        {displayEmail}
+        {showIcon && <i className={iconClassName} aria-hidden="true"></i>}
+        <span aria-hidden={!isVisible || !accessibleEmail}>{displayEmail}</span>
+        {accessibleEmail && (isVisible || !isMounted) && (
+          <span className="sr-only">{accessibleEmail}</span>
+        )}
       </Link>
     );
   }
 
   return (
-    <span className={className} ref={containerRef}>
-      {showIcon && <i className={iconClassName}></i>}
-      {displayEmail}
+    <span className={className} ref={containerRef} aria-label={accessibleEmail ? `Email: ${accessibleEmail}` : "Email contact"}>
+      {showIcon && <i className={iconClassName} aria-hidden="true"></i>}
+      <span aria-hidden={!isVisible || !accessibleEmail}>{displayEmail}</span>
+      {accessibleEmail && (isVisible || !isMounted) && (
+        <span className="sr-only">{accessibleEmail}</span>
+      )}
     </span>
   );
 };
