@@ -19,26 +19,43 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
   const { setLoading } = useLoading();
   const [menuHovered, setMenuHovered] = useState(false);
 
-  // Track previous language to detect changes
-  const prevLanguageRef = React.useRef<"en" | "es">(language);
-  
-  // Scroll to top when language changes
-  React.useEffect(() => {
-    if (prevLanguageRef.current !== language) {
-      prevLanguageRef.current = language;
-      // Scroll to top after language change
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }, 150);
-      });
-    }
-  }, [language]);
-
   const handleLanguageSwitch = (e: React.MouseEvent) => {
     e.preventDefault();
     setLanguage(language === "en" ? "es" : "en");
     setNavOpen(false);
+  };
+
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    setNavOpen(false);
+    
+    const element = document.getElementById(targetId);
+    if (element) {
+      const targetPosition = element.getBoundingClientRect().top + window.pageYOffset;
+      const startPosition = window.pageYOffset;
+      const distance = targetPosition - startPosition;
+      const duration = 1200; // Duración en milisegundos (1.2 segundos)
+      let start: number | null = null;
+
+      const easeInOutCubic = (t: number): number => {
+        return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+      };
+
+      const animation = (currentTime: number) => {
+        if (start === null) start = currentTime;
+        const timeElapsed = currentTime - start;
+        const progress = Math.min(timeElapsed / duration, 1);
+        const ease = easeInOutCubic(progress);
+        
+        window.scrollTo(0, startPosition + distance * ease);
+        
+        if (timeElapsed < duration) {
+          requestAnimationFrame(animation);
+        }
+      };
+
+      requestAnimationFrame(animation);
+    }
   };
 
   const handleResumeDownload = async (e: React.MouseEvent) => {
@@ -239,35 +256,35 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
           <Logo showText={true} />
         </div>
         <ul>
-          <li onClick={() => setNavOpen(false)} className="nav-link">
-            <Link href="#top" className="active" aria-label={`01 ${t("navigation.top")}`}>
+          <li className="nav-link">
+            <a href="#top" onClick={(e) => handleSmoothScroll(e, 'top')} className="active" aria-label={`01 ${t("navigation.top")}`}>
               <span aria-hidden="true">01</span> <span className="text" aria-hidden="true">{t("navigation.top")}</span>{" "}
               <span className="sr-only">01 {t("navigation.top")}</span>
-            </Link>
+            </a>
           </li>
-          <li onClick={() => setNavOpen(false)} className="nav-link">
-            <Link href="#about_me" aria-label={`02 ${t("navigation.aboutMe")}`}>
+          <li className="nav-link">
+            <a href="#about_me" onClick={(e) => handleSmoothScroll(e, 'about_me')} aria-label={`02 ${t("navigation.aboutMe")}`}>
               <span aria-hidden="true">02</span> <span className="text" aria-hidden="true">{t("navigation.aboutMe")}</span>{" "}
               <span className="sr-only">02 {t("navigation.aboutMe")}</span>
-            </Link>
+            </a>
           </li>
-          <li onClick={() => setNavOpen(false)} className="nav-link">
-            <Link href="#attainments" aria-label={`03 ${t("navigation.skills")}`}>
+          <li className="nav-link">
+            <a href="#attainments" onClick={(e) => handleSmoothScroll(e, 'attainments')} aria-label={`03 ${t("navigation.skills")}`}>
               <span aria-hidden="true">03</span> <span className="text" aria-hidden="true">{t("navigation.skills")}</span>{" "}
               <span className="sr-only">03 {t("navigation.skills")}</span>
-            </Link>
+            </a>
           </li>
-          <li onClick={() => setNavOpen(false)} className="nav-link">
-            <Link href="#experience" aria-label={`04 ${t("navigation.experiences")}`}>
+          <li className="nav-link">
+            <a href="#experience" onClick={(e) => handleSmoothScroll(e, 'experience')} aria-label={`04 ${t("navigation.experiences")}`}>
               <span aria-hidden="true">04</span> <span className="text" aria-hidden="true">{t("navigation.experiences")}</span>{" "}
               <span className="sr-only">04 {t("navigation.experiences")}</span>
-            </Link>
+            </a>
           </li>
-          <li onClick={() => setNavOpen(false)} className="nav-link">
-            <Link href="#contact" aria-label={`05 ${t("navigation.contact")}`}>
+          <li className="nav-link">
+            <a href="#contact" onClick={(e) => handleSmoothScroll(e, 'contact')} aria-label={`05 ${t("navigation.contact")}`}>
               <span aria-hidden="true">05</span> <span className="text" aria-hidden="true">{t("navigation.contact")}</span>{" "}
               <span className="sr-only">05 {t("navigation.contact")}</span>
-            </Link>
+            </a>
           </li>
           <li onClick={handleResumeDownload} className="nav-link">
             <a href="#" onClick={(e) => e.preventDefault()} aria-label={`06 ${t("navigation.resume")}`}>

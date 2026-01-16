@@ -2,8 +2,11 @@
 
 import { useEffect } from "react";
 import { SEOHead } from "./SEOHead";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const DynamicHead = () => {
+  const { language } = useLanguage();
+
   useEffect(() => {
     // Update favicon with cache busting
     const updateFavicon = () => {
@@ -29,6 +32,25 @@ export const DynamicHead = () => {
 
     updateFavicon();
   }, []);
+
+  useEffect(() => {
+    // Update manifest based on language
+    const updateManifest = () => {
+      // Remove existing manifest link
+      const existingManifest = document.querySelector("link[rel='manifest']");
+      if (existingManifest) {
+        existingManifest.remove();
+      }
+
+      // Create new manifest link based on language
+      const manifestLink = document.createElement("link");
+      manifestLink.rel = "manifest";
+      manifestLink.href = language === "en" ? "/manifest-en.json" : "/manifest.json";
+      document.getElementsByTagName("head")[0].appendChild(manifestLink);
+    };
+
+    updateManifest();
+  }, [language]);
 
   return <SEOHead />;
 };
