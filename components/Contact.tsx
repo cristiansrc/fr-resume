@@ -34,16 +34,16 @@ const Contact = () => {
     if (resumeLoading || !data) return;
 
     // Verificar que los elementos existan antes de animarlos
-    const overlayText = document.querySelector(".section-title-overlay-text");
+    const contactSection = document.querySelector(".contact");
+    const overlayText = contactSection?.querySelector(".section-title-overlay-text") as HTMLElement;
     const submitBtn = document.querySelector(".submit-btn");
     const contactItem = document.querySelector(".contact-item");
     const contactInput = document.querySelector(".contact-input");
-    const contactSection = document.querySelector(".contact");
     const contactItems = document.querySelector(".contact-items");
 
     if (overlayText && contactSection) {
       gsap.fromTo(
-        ".section-title-overlay-text",
+        overlayText,
         { y: "50%", force3D: true },
         {
           y: "-50%",
@@ -52,8 +52,24 @@ const Contact = () => {
             trigger: ".contact",
             start: "top bottom",
             end: "bottom top",
-            scrub: 1, // Usar scrub suave en lugar de true para mejor rendimiento
+            scrub: 1, // Usar scrub suave para mejor rendimiento
             invalidateOnRefresh: true,
+            anticipatePin: 1, // Optimizar para scroll asíncrono
+            refreshPriority: -1, // Prioridad baja para mejor rendimiento
+            fastScrollEnd: true, // Optimizar fin de scroll para Firefox
+            // Aplicar will-change solo cuando la animación esté activa
+            onEnter: () => {
+              overlayText.style.willChange = "transform";
+            },
+            onLeave: () => {
+              overlayText.style.willChange = "auto";
+            },
+            onEnterBack: () => {
+              overlayText.style.willChange = "transform";
+            },
+            onLeaveBack: () => {
+              overlayText.style.willChange = "auto";
+            },
           },
         },
       );

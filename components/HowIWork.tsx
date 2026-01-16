@@ -5,15 +5,15 @@ import SectionTitle from "./SectionTitle";
 const HowIWork = () => {
   useGSAP(() => {
     // Verificar que los elementos existan antes de animarlos
-    const overlayText = document.querySelector(".section-title-overlay-text");
     const howIWorkSection = document.querySelector(".how-i-work");
+    const overlayText = howIWorkSection?.querySelector(".section-title-overlay-text") as HTMLElement;
     const moreInfo = document.querySelector(".more-info");
     const process = document.querySelector(".process");
     const processList = document.querySelector(".process-list");
 
     if (overlayText && howIWorkSection) {
       gsap.fromTo(
-        ".section-title-overlay-text",
+        overlayText,
         { y: "50%", force3D: true },
         {
           y: "-50%",
@@ -24,6 +24,22 @@ const HowIWork = () => {
             end: "bottom top",
             scrub: 1,
             invalidateOnRefresh: true,
+            anticipatePin: 1, // Optimizar para scroll asíncrono
+            refreshPriority: -1, // Prioridad baja para mejor rendimiento
+            fastScrollEnd: true, // Optimizar fin de scroll para Firefox
+            // Aplicar will-change solo cuando la animación esté activa
+            onEnter: () => {
+              overlayText.style.willChange = "transform";
+            },
+            onLeave: () => {
+              overlayText.style.willChange = "auto";
+            },
+            onEnterBack: () => {
+              overlayText.style.willChange = "transform";
+            },
+            onLeaveBack: () => {
+              overlayText.style.willChange = "auto";
+            },
           },
         },
       );

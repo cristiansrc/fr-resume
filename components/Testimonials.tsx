@@ -11,13 +11,13 @@ import SectionTitle from "./SectionTitle";
 const Testimonials = () => {
   useGSAP(() => {
     // Verificar que los elementos existan antes de animarlos
-    const overlayText = document.querySelector(".section-title-overlay-text");
     const testimonialsSection = document.querySelector(".testimonials");
+    const overlayText = testimonialsSection?.querySelector(".section-title-overlay-text") as HTMLElement;
     const testimonialCard = document.querySelector(".testimonial-card");
 
     if (overlayText && testimonialsSection) {
       gsap.fromTo(
-        ".section-title-overlay-text",
+        overlayText,
         { y: "50%", force3D: true },
         {
           y: "-50%",
@@ -28,6 +28,22 @@ const Testimonials = () => {
             end: "bottom top",
             scrub: 1,
             invalidateOnRefresh: true,
+            anticipatePin: 1, // Optimizar para scroll asíncrono
+            refreshPriority: -1, // Prioridad baja para mejor rendimiento
+            fastScrollEnd: true, // Optimizar fin de scroll para Firefox
+            // Aplicar will-change solo cuando la animación esté activa
+            onEnter: () => {
+              overlayText.style.willChange = "transform";
+            },
+            onLeave: () => {
+              overlayText.style.willChange = "auto";
+            },
+            onEnterBack: () => {
+              overlayText.style.willChange = "transform";
+            },
+            onLeaveBack: () => {
+              overlayText.style.willChange = "auto";
+            },
           },
         },
       );

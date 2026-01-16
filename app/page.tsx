@@ -8,6 +8,7 @@ import Experience from "@/components/Experience";
 import Contact from "@/components/Contact";
 import Loading from "@/components/Loading";
 import ErrorPopup from "@/components/ErrorPopup";
+import ConsoleEasterEgg from "@/components/ConsoleEasterEgg";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useResume } from "@/contexts/ResumeContext";
@@ -284,6 +285,8 @@ export default function Home() {
         </div>
       </main>
       {/* <!-- color switcher --> */}
+      {/* Console Easter Egg - Se ejecuta al cargar la página */}
+      <ConsoleEasterEgg />
     </>
   );
 }

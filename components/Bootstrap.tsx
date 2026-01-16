@@ -1,13 +1,38 @@
 "use client";
 import React, { useEffect } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const Bootstrap = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     import("bootstrap");
     
-    // Configurar GSAP para silenciar warnings cuando los elementos no existen
+    // Configurar GSAP y ScrollTrigger para optimizar animaciones y evitar warnings de Firefox
     if (typeof window !== "undefined") {
+      // Registrar ScrollTrigger
+      gsap.registerPlugin(ScrollTrigger);
+      
+      // Configurar ScrollTrigger globalmente para mejor rendimiento y evitar warnings de Firefox
+      ScrollTrigger.config({
+        // Usar requestAnimationFrame para mejor rendimiento
+        autoRefreshEvents: "visibilitychange,DOMContentLoaded,load",
+        // Optimizar para scroll asíncrono - reduce warnings de Firefox
+        anticipatePin: 1,
+        // Mejorar el rendimiento en Firefox
+        ignoreMobileResize: true,
+      });
+      
+      // Normalizar el scroll para Firefox - esto elimina el warning de "scroll-linked effects"
+      // Fuerza que el scroll se maneje en el hilo de JavaScript, manteniendo las actualizaciones
+      // visuales sincronizadas con la posición del scroll
+      ScrollTrigger.normalizeScroll(true);
+      
+      // Configurar GSAP para usar requestAnimationFrame de manera más eficiente
+      gsap.config({
+        nullTargetWarn: false, // Silenciar warnings de targets null
+        trialWarn: false,
+      });
+      
       // Silenciar warnings de GSAP cuando los targets no se encuentran
       const originalWarn = console.warn;
       console.warn = (...args: any[]) => {
@@ -21,6 +46,8 @@ const Bootstrap = ({ children }: { children: React.ReactNode }) => {
       // Restaurar console.warn al desmontar
       return () => {
         console.warn = originalWarn;
+        // Limpiar ScrollTriggers
+        ScrollTrigger.getAll().forEach(trigger => trigger.kill());
       };
     }
   }, []);
