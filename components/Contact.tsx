@@ -9,6 +9,7 @@ import { useLoading } from "@/contexts/LoadingContext";
 import { sendContactMessage } from "@/api";
 import { solveChallenge } from "altcha-lib";
 import SuccessPopup from "./SuccessPopup";
+import ProtectedEmail from "./ProtectedEmail";
 gsap.registerPlugin(ScrollTrigger);
 
 const Contact = () => {
@@ -228,7 +229,12 @@ const Contact = () => {
               <div className="icon-box">
                 <i className="ph ph-envelope-open"></i>
               </div>
-              <p>{data?.basicData?.email || "emily@devis.com"}</p>
+              <p>
+                <ProtectedEmail 
+                  fallback="email@example.com"
+                  asLink={false}
+                />
+              </p>
             </div>
           </div>
         </div>

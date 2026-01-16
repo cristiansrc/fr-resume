@@ -1,8 +1,12 @@
 import React, { Dispatch, SetStateAction } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import ProtectedEmail from "@/components/ProtectedEmail";
+import { useResume } from "@/contexts/ResumeContext";
 
 const TopbarHeader = ({ setNavOpen, navOpen, classes }: { setNavOpen: Dispatch<SetStateAction<boolean>>; navOpen: boolean; classes?: string }) => {
+  const { data } = useResume();
+  
   return (
     <header className="header-topbar">
       <div className="container d-flex align-items-center justify-content-between">
@@ -11,9 +15,13 @@ const TopbarHeader = ({ setNavOpen, navOpen, classes }: { setNavOpen: Dispatch<S
         </Link>
 
         <div className="d-flex gap-2 gap-sm-3 align-items-center">
-          <Link className="d-flex gap-2 align-items-center" href="mailto:emily@devis.com">
-            <i className="ph ph-envelope"></i> emily@devis.com
-          </Link>
+          <ProtectedEmail 
+            fallback="email@example.com"
+            asLink={true}
+            className="d-flex gap-2 align-items-center"
+            showIcon={true}
+            iconClassName="ph ph-envelope"
+          />
           <button onClick={() => setNavOpen((p) => !p)} className="bg-transparent border-0">
             <div className={`nav-icon ${navOpen ? "open" : ""}`}>
               <span></span>
