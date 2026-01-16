@@ -1,19 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { SEOHead } from "./SEOHead";
 
 export const DynamicHead = () => {
-  const { language } = useLanguage();
-
   useEffect(() => {
-    // Update document title based on language
-    const title = language === "es" 
-      ? "cristiansrc - Hoja de vida" 
-      : "cristiansrc - Personal Portfolio";
-    
-    document.title = title;
-
     // Update favicon with cache busting
     const updateFavicon = () => {
       // Remove existing favicon links
@@ -37,7 +28,7 @@ export const DynamicHead = () => {
     };
 
     updateFavicon();
-  }, [language]);
+  }, []);
 
-  return null;
+  return <SEOHead />;
 };

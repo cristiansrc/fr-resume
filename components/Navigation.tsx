@@ -240,52 +240,61 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
         </div>
         <ul>
           <li onClick={() => setNavOpen(false)} className="nav-link">
-            <Link href="#top" className="active">
-              <span>01</span> <span className="text">{t("navigation.top")}</span>{" "}
+            <Link href="#top" className="active" aria-label={`01 ${t("navigation.top")}`}>
+              <span aria-hidden="true">01</span> <span className="text" aria-hidden="true">{t("navigation.top")}</span>{" "}
+              <span className="sr-only">01 {t("navigation.top")}</span>
             </Link>
           </li>
           <li onClick={() => setNavOpen(false)} className="nav-link">
-            <Link href="#about_me">
-              <span>02</span> <span className="text">{t("navigation.aboutMe")}</span>{" "}
+            <Link href="#about_me" aria-label={`02 ${t("navigation.aboutMe")}`}>
+              <span aria-hidden="true">02</span> <span className="text" aria-hidden="true">{t("navigation.aboutMe")}</span>{" "}
+              <span className="sr-only">02 {t("navigation.aboutMe")}</span>
             </Link>
           </li>
           <li onClick={() => setNavOpen(false)} className="nav-link">
-            <Link href="#attainments">
-              <span>03</span> <span className="text">{t("navigation.skills")}</span>{" "}
+            <Link href="#attainments" aria-label={`03 ${t("navigation.skills")}`}>
+              <span aria-hidden="true">03</span> <span className="text" aria-hidden="true">{t("navigation.skills")}</span>{" "}
+              <span className="sr-only">03 {t("navigation.skills")}</span>
             </Link>
           </li>
           <li onClick={() => setNavOpen(false)} className="nav-link">
-            <Link href="#experience">
-              <span>04</span> <span className="text">{t("navigation.experiences")}</span>{" "}
+            <Link href="#experience" aria-label={`04 ${t("navigation.experiences")}`}>
+              <span aria-hidden="true">04</span> <span className="text" aria-hidden="true">{t("navigation.experiences")}</span>{" "}
+              <span className="sr-only">04 {t("navigation.experiences")}</span>
             </Link>
           </li>
           <li onClick={() => setNavOpen(false)} className="nav-link">
-            <Link href="#contact">
-              <span>05</span> <span className="text">{t("navigation.contact")}</span>{" "}
+            <Link href="#contact" aria-label={`05 ${t("navigation.contact")}`}>
+              <span aria-hidden="true">05</span> <span className="text" aria-hidden="true">{t("navigation.contact")}</span>{" "}
+              <span className="sr-only">05 {t("navigation.contact")}</span>
             </Link>
           </li>
           <li onClick={handleResumeDownload} className="nav-link">
-            <a href="#" onClick={(e) => e.preventDefault()}>
-              <span>06</span> <span className="text">{t("navigation.resume")}</span>{" "}
+            <a href="#" onClick={(e) => e.preventDefault()} aria-label={`06 ${t("navigation.resume")}`}>
+              <span aria-hidden="true">06</span> <span className="text" aria-hidden="true">{t("navigation.resume")}</span>{" "}
+              <span className="sr-only">06 {t("navigation.resume")}</span>
             </a>
           </li>
           {data?.basicData?.linkedin && (
             <li onClick={() => setNavOpen(false)} className="nav-link" data-social="linkedin">
-              <a href={getLinkedInUrl()} target="_blank" rel="noopener noreferrer">
-                <span>07</span> <span className="text">{t("navigation.linkedin")}</span>{" "}
+              <a href={getLinkedInUrl()} target="_blank" rel="noopener noreferrer" aria-label={`07 ${t("navigation.linkedin")}`}>
+                <span aria-hidden="true">07</span> <span className="text" aria-hidden="true">{t("navigation.linkedin")}</span>{" "}
+                <span className="sr-only">07 {t("navigation.linkedin")}</span>
               </a>
             </li>
           )}
           {data?.basicData?.github && (
             <li onClick={() => setNavOpen(false)} className="nav-link" data-social="github">
-              <a href={data.basicData.github} target="_blank" rel="noopener noreferrer">
-                <span>08</span> <span className="text">{t("navigation.github")}</span>{" "}
+              <a href={data.basicData.github} target="_blank" rel="noopener noreferrer" aria-label={`08 ${t("navigation.github")}`}>
+                <span aria-hidden="true">08</span> <span className="text" aria-hidden="true">{t("navigation.github")}</span>{" "}
+                <span className="sr-only">08 {t("navigation.github")}</span>
               </a>
             </li>
           )}
           <li onClick={handleLanguageSwitch} className="nav-link">
-            <a href="#" onClick={(e) => e.preventDefault()}>
-              <span>09</span> <span className="text">{t("navigation.switchLanguage")}</span>{" "}
+            <a href="#" onClick={(e) => e.preventDefault()} aria-label={`09 ${t("navigation.switchLanguage")}`}>
+              <span aria-hidden="true">09</span> <span className="text" aria-hidden="true">{t("navigation.switchLanguage")}</span>{" "}
+              <span className="sr-only">09 {t("navigation.switchLanguage")}</span>
             </a>
           </li>
         </ul>
