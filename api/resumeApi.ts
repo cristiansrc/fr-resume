@@ -72,7 +72,7 @@ export async function getCurriculumPdf(language: CurriculumLanguage): Promise<Bl
 /**
  * Downloads the curriculum PDF and triggers a browser download
  * @param language - "english" or "spanish"
- * @param filename - Optional filename for the download (default: "curriculum-{language}.pdf")
+ * @param filename - Optional filename for the download (default: uses env variables)
  */
 export async function downloadCurriculumPdf(
   language: CurriculumLanguage,
@@ -83,7 +83,16 @@ export async function downloadCurriculumPdf(
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = filename || `curriculum-${language}.pdf`;
+    
+    // Get filename from environment variables or use default
+    let defaultFilename = `curriculum-${language}.pdf`;
+    if (language === "spanish") {
+      defaultFilename = process.env.NEXT_PUBLIC_NAME_PDF || defaultFilename;
+    } else if (language === "english") {
+      defaultFilename = process.env.NEXT_PUBLIC_NAME_PDF_ENG || defaultFilename;
+    }
+    
+    link.download = filename || defaultFilename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
