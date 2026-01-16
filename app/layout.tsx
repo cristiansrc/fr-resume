@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "@/public/scss/styles.scss";
 import Bootstrap from "@/components/Bootstrap";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ResumeProvider } from "@/contexts/ResumeContext";
 import { LoadingProvider } from "@/contexts/LoadingContext";
@@ -24,9 +21,13 @@ export const metadata: Metadata = {
 type LayoutType = {
   children: React.ReactNode;
 };
-const poppins = Poppins({ weight: ["400", "500", "600", "700", "800"], subsets: ["latin"] });
-gsap.registerPlugin(useGSAP);
-gsap.registerPlugin(ScrollTrigger);
+const poppins = Poppins({ 
+  weight: ["400", "500", "600", "700", "800"], 
+  subsets: ["latin"],
+  display: "swap",
+  preload: false, // Desactivar preload para evitar warnings cuando el contenido se carga después
+  adjustFontFallback: false,
+});
 export default function RootLayout({ children }: Readonly<LayoutType>) {
   return (
     <html lang="en" suppressHydrationWarning>

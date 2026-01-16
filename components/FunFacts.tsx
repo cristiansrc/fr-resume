@@ -10,27 +10,39 @@ const FunFacts = () => {
   const [offsetY, setOffestY] = useState(0);
 
   useGSAP(() => {
-    gsap.fromTo(
-      ".section-title-overlay-text",
-      { y: "50%" },
-      {
-        y: "-50%",
-        scrollTrigger: {
-          trigger: ".fun_facts",
-          start: "top bottom",
-          end: "bottom top",
-          scrub: true,
+    // Verificar que los elementos existan antes de animarlos
+    const overlayText = document.querySelector(".section-title-overlay-text");
+    const funFactsSection = document.querySelector(".fun_facts");
+    const funFact = document.querySelector(".fun-fact");
+
+    if (overlayText && funFactsSection) {
+      gsap.fromTo(
+        ".section-title-overlay-text",
+        { y: "50%", force3D: true },
+        {
+          y: "-50%",
+          force3D: true,
+          scrollTrigger: {
+            trigger: ".fun_facts",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1, // Usar scrub suave para mejor rendimiento
+            invalidateOnRefresh: true,
+          },
         },
-      },
-    );
-    gsap.from(".fun-fact", {
-      scale: 0,
-      duration: 1,
-      stagger: 0.2,
-      scrollTrigger: {
-        trigger: ".fun-fact",
-      },
-    });
+      );
+    }
+
+    if (funFact) {
+      gsap.from(".fun-fact", {
+        scale: 0,
+        duration: 1,
+        stagger: 0.2,
+        scrollTrigger: {
+          trigger: ".fun-fact",
+        },
+      });
+    }
   });
   useEffect(() => {
     document.addEventListener("mousemove", mouseMove);

@@ -10,28 +10,42 @@ import SectionTitle from "./SectionTitle";
 
 const Testimonials = () => {
   useGSAP(() => {
-    gsap.fromTo(
-      ".section-title-overlay-text",
-      { y: "50%" },
-      {
-        y: "-50%",
-        scrollTrigger: {
-          trigger: ".testimonials",
-          start: "top bottom",
-          end: "bottom top",
-          scrub: true,
+    // Verificar que los elementos existan antes de animarlos
+    const overlayText = document.querySelector(".section-title-overlay-text");
+    const testimonialsSection = document.querySelector(".testimonials");
+    const testimonialCard = document.querySelector(".testimonial-card");
+
+    if (overlayText && testimonialsSection) {
+      gsap.fromTo(
+        ".section-title-overlay-text",
+        { y: "50%", force3D: true },
+        {
+          y: "-50%",
+          force3D: true,
+          scrollTrigger: {
+            trigger: ".testimonials",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1,
+            invalidateOnRefresh: true,
+          },
         },
-      },
-    );
-    gsap.from(".testimonial-card", {
-      opacity: 0,
-      y: 40,
-      duration: 1.2,
-      stagger: 0.2,
-      scrollTrigger: {
-        trigger: ".testimonial-card",
-      },
-    });
+      );
+    }
+
+    if (testimonialCard) {
+      gsap.from(".testimonial-card", {
+        opacity: 0,
+        y: 40,
+        duration: 1.2,
+        stagger: 0.2,
+        force3D: true,
+        scrollTrigger: {
+          trigger: ".testimonial-card",
+          invalidateOnRefresh: true,
+        },
+      });
+    }
   });
   return (
     <section id="testimonials" className="testimonials section position-relative">

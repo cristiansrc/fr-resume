@@ -3422,3 +3422,23 @@ footer {
     flex-shrink: 0;
   }
 }
+
+/* Optimización para animaciones basadas en scroll - reduce warnings de Firefox */
+.section-title-overlay-text,
+.experience-item,
+.experience-wrapper,
+.design-row-item,
+.developer-row,
+.language-row-item,
+.single-project,
+.service-card,
+.contact-item,
+.contact-input,
+.submit-btn,
+.more-info,
+.process,
+.testimonial-card,
+.fun-fact {
+  will-change: transform, opacity;
+  transform: translateZ(0); /* Forzar aceleración por hardware */
+}

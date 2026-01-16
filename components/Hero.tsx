@@ -11,6 +11,7 @@ import { useResume } from "@/contexts/ResumeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useLoading } from "@/contexts/LoadingContext";
 import { downloadCurriculumPdf } from "@/api";
+import shuffleLetters from "shuffle-letters";
 
 const Hero = ({ classes }: { classes?: string }) => {
   const { t } = useTranslation();
@@ -18,6 +19,9 @@ const Hero = ({ classes }: { classes?: string }) => {
   const { language } = useLanguage();
   const { setLoading } = useLoading();
   const descriptionRef = useRef<HTMLParagraphElement>(null);
+  const workButtonRef = useRef<HTMLAnchorElement>(null);
+  const contactButtonRef = useRef<HTMLAnchorElement>(null);
+  const [isHovering, setIsHovering] = useState(false);
   
   const handleWorkClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -36,12 +40,34 @@ const Hero = ({ classes }: { classes?: string }) => {
     // Solo ejecutar animaciones cuando el loading inicial haya terminado
     if (resumeLoading || !data) return;
 
-    gsap.from(".img-wrapper", { duration: 1.5, scale: 1.5, ease: "back", delay: 0.3, opacity: 0 });
-    gsap.from(".work-btn", { duration: 1.2, scale: 0, opacity: 0, ease: "bounce" });
-    gsap.from(".contact-btn", { duration: 1.2, scale: 0, opacity: 0, ease: "bounce" });
+    // Verificar que los elementos existan antes de animarlos
+    const imgWrapper = document.querySelector(".img-wrapper");
+    const workBtn = document.querySelector(".work-btn");
+    const contactBtn = document.querySelector(".contact-btn");
+    const freelancerEl = document.querySelector(".freelancer");
 
-    const freelancer = SplitType.create(".freelancer").chars;
-    gsap.from(freelancer, { duration: 1.5, rotateX: 180, opacity: 0, ease: "bounce", stagger: 0.05 });
+    if (imgWrapper) {
+      gsap.from(".img-wrapper", { duration: 1.5, scale: 1.5, ease: "back", delay: 0.3, opacity: 0 });
+    }
+
+    if (workBtn) {
+      gsap.from(".work-btn", { duration: 1.2, scale: 0, opacity: 0, ease: "bounce" });
+    }
+
+    if (contactBtn) {
+      gsap.from(".contact-btn", { duration: 1.2, scale: 0, opacity: 0, ease: "bounce" });
+    }
+
+    if (freelancerEl) {
+      try {
+        const freelancer = SplitType.create(".freelancer").chars;
+        if (freelancer && freelancer.length > 0) {
+          gsap.from(freelancer, { duration: 1.5, rotateX: 180, opacity: 0, ease: "bounce", stagger: 0.05 });
+        }
+      } catch (error) {
+        // Silenciar error si SplitType falla
+      }
+    }
   }, { dependencies: [resumeLoading, data] });
 
   // Calculate the full text that should be displayed
@@ -155,6 +181,51 @@ const Hero = ({ classes }: { classes?: string }) => {
       retryCount = 0;
     };
   }, [language, fullDescriptionText, data?.basicData?.located, data?.basicData?.locatedEng]);
+
+  // Aplicar animación shuffleLetters al botón cuando cambie el texto (hover o idioma)
+  useEffect(() => {
+    if (!workButtonRef.current) return;
+
+    const button = workButtonRef.current;
+    const currentText = isHovering 
+      ? (language === "es" ? "descargar_hv.json()" : "download_hv.json()")
+      : (language === "es" ? "Descargar Hoja de vida" : "Download Resume");
+
+    // Asegurar que el texto esté actualizado
+    if (button.textContent !== currentText) {
+      button.textContent = currentText;
+    }
+
+    // Aplicar animación shuffleLetters con iterations: 10
+    try {
+      shuffleLetters(button, { iterations: 10 });
+    } catch (error) {
+      console.error("Error applying shuffleLetters to work button:", error);
+    }
+  }, [isHovering, language]);
+
+  // Aplicar animación shuffleLetters al botón de contacto cuando cambie el idioma o se cargue
+  useEffect(() => {
+    if (!contactButtonRef.current || !data?.home) return;
+
+    const button = contactButtonRef.current;
+    const currentText = data.home.buttonContactLabel 
+      ? (language === "es" ? data.home.buttonContactLabel : data.home.buttonContactLabelEng) 
+      : "contact me";
+
+    // Asegurar que el texto esté actualizado
+    if (button.textContent !== currentText) {
+      button.textContent = currentText;
+    }
+
+    // Aplicar animación shuffleLetters con iterations: 10
+    try {
+      shuffleLetters(button, { iterations: 10 });
+    } catch (error) {
+      console.error("Error applying shuffleLetters to contact button:", error);
+    }
+  }, [language, data?.home?.buttonContactLabel, data?.home?.buttonContactLabelEng]);
+
   return (
     <section id="top" className={`hero ${classes}`}>
       <div className="row gx-4 justify-content-center align-items-center">
@@ -183,13 +254,25 @@ const Hero = ({ classes }: { classes?: string }) => {
           </div>
           <div className="d-flex gap-4">
             <a 
+              ref={workButtonRef}
               href="#" 
               onClick={handleWorkClick}
               className="btn work-btn text-capitalize btn-secondary"
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+              style={{ minWidth: "240px", textAlign: "center" }}
             >
-              {data?.home?.buttonWorkLabel ? (language === "es" ? data.home.buttonWorkLabel : data.home.buttonWorkLabelEng) : "view my work"}
+              {isHovering 
+                ? (language === "es" ? "descargar_hv.json()" : "download_hv.json()")
+                : (language === "es" ? "Descargar Hoja de vida" : "Download Resume")
+              }
             </a>
-            <Link href="#contact" className="btn contact-btn text-capitalize btn-outline-secondary">
+            <Link 
+              ref={contactButtonRef}
+              href="#contact" 
+              className="btn contact-btn text-capitalize btn-outline-secondary"
+              style={{ minWidth: "240px", textAlign: "center" }}
+            >
               {data?.home?.buttonContactLabel ? (language === "es" ? data.home.buttonContactLabel : data.home.buttonContactLabelEng) : "contact me"}
             </Link>
           </div>

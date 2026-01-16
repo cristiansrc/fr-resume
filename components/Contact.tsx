@@ -33,45 +33,71 @@ const Contact = () => {
     // Solo ejecutar animaciones cuando el loading inicial haya terminado
     if (resumeLoading || !data) return;
 
-    gsap.fromTo(
-      ".section-title-overlay-text",
-      { y: "50%" },
-      {
-        y: "-50%",
-        scrollTrigger: {
-          trigger: ".contact",
-          start: "top bottom",
-          end: "bottom top",
-          scrub: true,
-        },
-      },
-    );
-    gsap.from(".submit-btn", {
-      scale: 0,
-      duration: 3.5,
-      ease: "elastic",
-      delay: 0.2,
-      scrollTrigger: {
-        trigger: ".submit-btn",
-      },
-    });
-    gsap.from(".contact-item", {
-      scale: 0,
-      duration: 0.8,
-      ease: "back",
-      scrollTrigger: {
-        trigger: ".contact-items",
-      },
-    });
+    // Verificar que los elementos existan antes de animarlos
+    const overlayText = document.querySelector(".section-title-overlay-text");
+    const submitBtn = document.querySelector(".submit-btn");
+    const contactItem = document.querySelector(".contact-item");
+    const contactInput = document.querySelector(".contact-input");
+    const contactSection = document.querySelector(".contact");
+    const contactItems = document.querySelector(".contact-items");
 
-    gsap.from(".contact-input", {
-      opacity: 0,
-      scale: 0,
-      duration: 0.8,
-      scrollTrigger: {
-        trigger: ".contact-input",
-      },
-    });
+    if (overlayText && contactSection) {
+      gsap.fromTo(
+        ".section-title-overlay-text",
+        { y: "50%", force3D: true },
+        {
+          y: "-50%",
+          force3D: true,
+          scrollTrigger: {
+            trigger: ".contact",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1, // Usar scrub suave en lugar de true para mejor rendimiento
+            invalidateOnRefresh: true,
+          },
+        },
+      );
+    }
+
+    if (submitBtn) {
+      gsap.from(".submit-btn", {
+        scale: 0,
+        duration: 3.5,
+        ease: "elastic",
+        delay: 0.2,
+        force3D: true,
+        scrollTrigger: {
+          trigger: ".submit-btn",
+          invalidateOnRefresh: true,
+        },
+      });
+    }
+
+    if (contactItem && contactItems) {
+      gsap.from(".contact-item", {
+        scale: 0,
+        duration: 0.8,
+        ease: "back",
+        force3D: true,
+        scrollTrigger: {
+          trigger: ".contact-items",
+          invalidateOnRefresh: true,
+        },
+      });
+    }
+
+    if (contactInput) {
+      gsap.from(".contact-input", {
+        opacity: 0,
+        scale: 0,
+        duration: 0.8,
+        force3D: true,
+        scrollTrigger: {
+          trigger: ".contact-input",
+          invalidateOnRefresh: true,
+        },
+      });
+    }
   }, { dependencies: [resumeLoading, data] });
   const form = useRef<HTMLFormElement>(null);
 
