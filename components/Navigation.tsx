@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import shuffleLetters from "shuffle-letters";
@@ -9,6 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useResume } from "@/contexts/ResumeContext";
 import { useLoading } from "@/contexts/LoadingContext";
 import { downloadCurriculumPdf } from "@/api";
+import ProtectedEmail from "@/components/ProtectedEmail";
 
 const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateAction<boolean>>; navOpen: boolean }) => {
   const navRef = useRef<HTMLElement>(null);
@@ -16,6 +17,7 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
   const { language, setLanguage } = useLanguage();
   const { data } = useResume();
   const { setLoading } = useLoading();
+  const [menuHovered, setMenuHovered] = useState(false);
 
   // Track previous language to detect changes
   const prevLanguageRef = React.useRef<"en" | "es">(language);
@@ -287,10 +289,16 @@ const Navigation = ({ setNavOpen, navOpen }: { setNavOpen: Dispatch<SetStateActi
             </a>
           </li>
         </ul>
-        <div className="contact">
-          <Link href={data?.basicData?.email ? `mailto:${data.basicData.email}` : "mailto:emily@devis.com"}>
-            {data?.basicData?.email || "emily@devis.com"}
-          </Link>
+        <div 
+          className="contact"
+          onMouseEnter={() => setMenuHovered(true)}
+          onMouseLeave={() => setMenuHovered(false)}
+        >
+          <ProtectedEmail 
+            fallback="email@example.com"
+            asLink={true}
+            onMenuHover={menuHovered}
+          />
         </div>
       </nav>
       <div onClick={() => setNavOpen(false)} className="nav-overlay d-xl-none"></div>

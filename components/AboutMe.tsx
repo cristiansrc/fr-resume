@@ -6,6 +6,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useResume } from "@/contexts/ResumeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDate } from "@/utils/dateFormatter";
+import ProtectedEmail from "./ProtectedEmail";
 
 const AboutMe = () => {
   const { t } = useTranslation();
@@ -31,9 +32,10 @@ const AboutMe = () => {
           <div className="row about-contact">
             <div className="col-sm-4 about-contact-item">
               <p>Email:</p>
-              <Link href={data?.basicData?.email ? `mailto:${data.basicData.email}` : "mailto:chat@portify.com"}>
-                {data?.basicData?.email || "chat@portify.com"}
-              </Link>
+              <ProtectedEmail 
+                fallback="email@example.com"
+                asLink={true}
+              />
             </div>
             <div className="col-sm-4 about-contact-item">
               <p>{t("aboutMe.dateOfBirth")}</p>
