@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og';
 
 // Configuración de la imagen (Estándar de Open Graph)
 export const runtime = 'edge';
-export const alt = 'Cristian SRC - Software Engineer - Full Stack Developer - Portfolio';
+export const alt = 'Cristian SRC - Senior Software Engineer - Full Stack Developer - Portfolio';
 export const size = {
   width: 1200,
   height: 630,
@@ -10,12 +10,10 @@ export const size = {
 export const contentType = 'image/png';
 
 export default async function Image() {
-  // Colores de la página (coinciden con los estilos)
-  const primaryColor = '#FFDB67'; // Color primary de la página (255, 219, 103)
+  // Colores de la página (coinciden exactamente con los estilos)
+  const primaryColor = '#FFDB67'; // rgb(255, 219, 103)
   const blackColor = '#000000';
   const whiteColor = '#FFFFFF';
-  const leftBgColor = '#FFF5E6'; // Naranja/durazno claro (izquierda)
-  const rightBgColor = '#FFDB67'; // Amarillo suave (derecha)
   
   // Tecnologías a mostrar
   const technologies = [
@@ -58,56 +56,9 @@ export default async function Image() {
           position: 'relative',
           fontFamily: 'system-ui, -apple-system, sans-serif',
           overflow: 'hidden',
+          background: primaryColor, // Fondo principal amarillo como la página
         }}
       >
-        {/* Fondo dividido: izquierda naranja, derecha amarilla */}
-        <div
-          style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            width: '65%',
-            height: '100%',
-            background: leftBgColor,
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            right: 0,
-            top: 0,
-            width: '35%',
-            height: '100%',
-            background: rightBgColor,
-          }}
-        />
-
-        {/* Formas abstractas decorativas (simuladas con círculos) */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '-100px',
-            right: '-50px',
-            width: '400px',
-            height: '400px',
-            background: rightBgColor,
-            borderRadius: '50%',
-            opacity: 0.6,
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-80px',
-            right: '100px',
-            width: '300px',
-            height: '300px',
-            background: '#E8F5E9',
-            borderRadius: '50%',
-            opacity: 0.4,
-          }}
-        />
-
         {/* Contenedor principal con layout similar a la sección Hero */}
         <div
           style={{
@@ -115,7 +66,7 @@ export default async function Image() {
             width: '100%',
             height: '100%',
             alignItems: 'center',
-            padding: '50px 70px',
+            padding: '60px 80px',
             position: 'relative',
             zIndex: 10,
           }}
@@ -126,51 +77,64 @@ export default async function Image() {
               display: 'flex',
               flexDirection: 'column',
               flex: 1,
-              maxWidth: '55%',
-              paddingRight: '40px',
+              maxWidth: '58%',
+              paddingRight: '50px',
             }}
           >
             {/* Saludo (como h4.freelancer) */}
             <div
               style={{
-                fontSize: 32,
+                fontSize: 36,
                 fontWeight: 500,
                 color: blackColor,
-                marginBottom: '8px',
+                marginBottom: '10px',
                 textTransform: 'uppercase',
-                letterSpacing: '1px',
+                letterSpacing: '2px',
               }}
             >
-              HOLA, SOY CRIS
+              HI, I'M CRIS
             </div>
 
             {/* Título principal (como Typewriter h1) */}
             <h1
               style={{
-                fontSize: 80,
-                fontWeight: 600,
+                fontSize: 72,
+                fontWeight: 700,
                 color: blackColor,
                 margin: 0,
-                marginBottom: '12px',
-                letterSpacing: '-1px',
-                lineHeight: 1.2,
+                marginBottom: '15px',
+                letterSpacing: '-2px',
+                lineHeight: 1.1,
               }}
             >
-              Líder Técnico|
+              Senior Software
+            </h1>
+            <h1
+              style={{
+                fontSize: 72,
+                fontWeight: 700,
+                color: blackColor,
+                margin: 0,
+                marginBottom: '20px',
+                letterSpacing: '-2px',
+                lineHeight: 1.1,
+              }}
+            >
+              Engineer
             </h1>
 
             {/* Ubicación (como p.description) */}
             <p
               style={{
-                fontSize: 24,
+                fontSize: 26,
                 fontWeight: 500,
                 color: blackColor,
                 margin: 0,
-                marginBottom: '40px',
-                letterSpacing: '-1px',
+                marginBottom: '35px',
+                opacity: 0.9,
               }}
             >
-              ubicado en Bogotá, Colombia
+              📍 based in Bogotá, Colombia
             </p>
 
             {/* Tecnologías */}
@@ -179,7 +143,6 @@ export default async function Image() {
                 display: 'flex',
                 flexWrap: 'wrap',
                 gap: '12px',
-                marginTop: '20px',
               }}
             >
               {technologies.map((tech) => (
@@ -187,11 +150,11 @@ export default async function Image() {
                   key={tech}
                   style={{
                     backgroundColor: blackColor,
-                    color: whiteColor,
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    fontSize: 16,
-                    fontWeight: 500,
+                    color: primaryColor,
+                    padding: '10px 20px',
+                    borderRadius: '25px',
+                    fontSize: 17,
+                    fontWeight: 600,
                     fontFamily: 'system-ui, -apple-system, sans-serif',
                   }}
                 >
@@ -208,60 +171,33 @@ export default async function Image() {
               alignItems: 'center',
               justifyContent: 'center',
               flex: 1,
-              maxWidth: '45%',
+              maxWidth: '42%',
               position: 'relative',
             }}
           >
-            {/* Contenedor de ondas (simulado) */}
+            {/* Contenedor de la imagen */}
             <div
               style={{
-                width: '380px',
-                height: '380px',
+                width: '400px',
+                height: '400px',
                 position: 'relative',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              {/* Ondas superiores (simuladas) */}
+              {/* Círculo de fondo con sombra */}
               <div
                 style={{
-                  position: 'absolute',
-                  top: '-20px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '100%',
-                  height: '20px',
-                  display: 'flex',
-                  gap: '8px',
-                  justifyContent: 'center',
-                }}
-              >
-                {[1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    style={{
-                      width: '4px',
-                      height: '20px',
-                      background: blackColor,
-                      opacity: 0.3,
-                    }}
-                  />
-                ))}
-              </div>
-
-              {/* Círculo de fondo amarillo */}
-              <div
-                style={{
-                  width: '360px',
-                  height: '360px',
+                  width: '380px',
+                  height: '380px',
                   borderRadius: '50%',
-                  background: rightBgColor,
+                  background: whiteColor,
                   position: 'relative',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  border: '2px solid rgba(0, 0, 0, 0.1)',
+                  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)',
                 }}
               >
                 {/* Foto de perfil */}
@@ -270,58 +206,32 @@ export default async function Image() {
                     src={profileImage}
                     alt="Cristian SRC"
                     style={{
-                      width: '340px',
-                      height: '340px',
+                      width: '360px',
+                      height: '360px',
                       borderRadius: '50%',
                       objectFit: 'cover',
-                      border: '2px solid rgba(0, 0, 0, 0.2)',
+                      border: `5px solid ${primaryColor}`,
                     }}
                   />
                 ) : (
                   <div
                     style={{
-                      width: '340px',
-                      height: '340px',
+                      width: '360px',
+                      height: '360px',
                       borderRadius: '50%',
                       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       color: whiteColor,
-                      fontSize: 48,
+                      fontSize: 80,
                       fontWeight: 700,
+                      border: `5px solid ${primaryColor}`,
                     }}
                   >
                     CS
                   </div>
                 )}
-              </div>
-
-              {/* Ondas inferiores (simuladas) */}
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: '-20px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '100%',
-                  height: '20px',
-                  display: 'flex',
-                  gap: '8px',
-                  justifyContent: 'center',
-                }}
-              >
-                {[1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    style={{
-                      width: '4px',
-                      height: '20px',
-                      background: blackColor,
-                      opacity: 0.3,
-                    }}
-                  />
-                ))}
               </div>
             </div>
           </div>
