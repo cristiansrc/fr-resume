@@ -16,10 +16,6 @@ const Bootstrap = ({ children }: { children: React.ReactNode }) => {
       ScrollTrigger.config({
         // Usar requestAnimationFrame para mejor rendimiento
         autoRefreshEvents: "visibilitychange,DOMContentLoaded,load",
-        // Optimizar para scroll asíncrono - reduce warnings de Firefox
-        anticipatePin: 1,
-        // Mejorar el rendimiento en Firefox
-        ignoreMobileResize: true,
       });
       
       // Normalizar el scroll para Firefox - esto elimina el warning de "scroll-linked effects"
