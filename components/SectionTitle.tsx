@@ -15,22 +15,27 @@ const SectionTitle = ({ title, subtitle }: Props) => {
 
   useGSAP(() => {
     const element = sectionTitleRef.current;
+    if (!element) return;
 
     const fromAnimation = gsap.from(element, {
       opacity: 0,
       y: 50,
+      force3D: true,
       scrollTrigger: {
         trigger: element,
-        start: "top bottom", // adjust as needed
+        start: "top bottom",
+        invalidateOnRefresh: true,
       },
     });
 
     const toAnimation = gsap.to(element, {
       "--height": "100%",
       delay: 0.5,
+      force3D: true,
       scrollTrigger: {
         trigger: element,
-        start: "top bottom", // adjust as needed
+        start: "top bottom",
+        invalidateOnRefresh: true,
       },
     });
 

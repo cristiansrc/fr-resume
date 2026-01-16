@@ -10,17 +10,47 @@ const SectionOverlayText = ({ text }: { text: string }) => {
 
   useGSAP(() => {
     const element = sectionTitleRef.current;
+    const triggerElement = document.querySelector(".about");
+
+    // Verificar que los elementos existan antes de animar
+    if (!element || !triggerElement) return;
 
     const anim = gsap.fromTo(
       element,
-      { y: "50%" },
+      { y: "50%", force3D: true },
       {
         y: "-50%",
+        force3D: true,
         scrollTrigger: {
           trigger: ".about",
           start: "top bottom",
           end: "bottom top",
-          scrub: true,
+          scrub: 1, // Usar scrub suave para mejor rendimiento
+          invalidateOnRefresh: true,
+          anticipatePin: 1, // Optimizar para scroll asíncrono
+          refreshPriority: -1, // Prioridad baja para mejor rendimiento
+          fastScrollEnd: true, // Optimizar fin de scroll para Firefox
+          // Aplicar will-change solo cuando la animación esté activa
+          onEnter: () => {
+            if (element instanceof HTMLElement) {
+              element.style.willChange = "transform";
+            }
+          },
+          onLeave: () => {
+            if (element instanceof HTMLElement) {
+              element.style.willChange = "auto";
+            }
+          },
+          onEnterBack: () => {
+            if (element instanceof HTMLElement) {
+              element.style.willChange = "transform";
+            }
+          },
+          onLeaveBack: () => {
+            if (element instanceof HTMLElement) {
+              element.style.willChange = "auto";
+            }
+          },
         },
       },
     );

@@ -3422,3 +3422,13 @@ footer {
     flex-shrink: 0;
   }
 }
+
+/* Optimización para animaciones basadas en scroll - reduce warnings de Firefox */
+/* Nota: will-change se aplica dinámicamente solo cuando es necesario para evitar consumo excesivo de memoria */
+
+/* Solo aplicar transform y backface-visibility para aceleración por hardware */
+.section-title-overlay-text {
+  transform: translateZ(0); /* Forzar aceleración por hardware */
+  backface-visibility: hidden; /* Optimizar renderizado */
+  contain: layout style paint; /* Optimizar renderizado */
+}

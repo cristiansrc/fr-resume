@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { useResume } from "@/contexts/ResumeContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import shuffleLetters from "shuffle-letters";
 
 interface ProtectedEmailProps {
-  email?: string; // Opcional: si no se pasa, se obtiene del contexto
+  email?: string; // Opcional: si no se pasa, se obtiene de las variables de entorno
   className?: string;
   showIcon?: boolean;
   iconClassName?: string;
@@ -20,8 +20,10 @@ interface ProtectedEmailProps {
  * El correo NO se almacena en el HTML inicial, solo se reconstruye
  * en memoria cuando JavaScript se ejecuta en el cliente.
  * 
- * Si no se pasa email como prop, lo obtiene directamente del contexto
- * para evitar que aparezca en las props del HTML.
+ * Si no se pasa email como prop, lo obtiene de las variables de entorno:
+ * - NEXT_PUBLIC_EMAIL para español
+ * - NEXT_PUBLIC_EMAIL_ENG para inglés
+ * Esto evita que aparezca en las props del HTML.
  */
 const ProtectedEmail: React.FC<ProtectedEmailProps> = ({
   email: emailProp,
@@ -32,7 +34,7 @@ const ProtectedEmail: React.FC<ProtectedEmailProps> = ({
   fallback = "email@example.com",
   onMenuHover = false,
 }) => {
-  const { data } = useResume();
+  const { language } = useLanguage();
   const [decodedEmail, setDecodedEmail] = useState<string>("");
   const [isMounted, setIsMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -41,10 +43,16 @@ const ProtectedEmail: React.FC<ProtectedEmailProps> = ({
   const scrollDetectedRef = useRef(false);
   const lastScrollYRef = useRef(0);
 
-  // Obtener el correo del contexto si no se pasa como prop
+  // Obtener el correo de las variables de entorno según el idioma
   const getEmail = (): string => {
     if (emailProp) return emailProp;
-    return data?.basicData?.email || fallback;
+    
+    // Obtener el correo según el idioma actual
+    const emailFromEnv = language === "es" 
+      ? process.env.NEXT_PUBLIC_EMAIL 
+      : process.env.NEXT_PUBLIC_EMAIL_ENG;
+    
+    return emailFromEnv || fallback;
   };
 
   // Inicializar y almacenar el correo en una ref solo en el cliente
@@ -59,7 +67,23 @@ const ProtectedEmail: React.FC<ProtectedEmailProps> = ({
     }, 200);
 
     return () => clearTimeout(timer);
-  }, [emailProp, data?.basicData?.email, fallback]);
+  }, [emailProp, language, fallback]);
+
+  // Actualizar el correo cuando cambie el idioma
+  useEffect(() => {
+    if (typeof window === "undefined" || !isMounted) return;
+    
+    // Actualizar el correo según el idioma actual
+    const emailValue = getEmail();
+    if (emailValue && emailValue !== fallback) {
+      emailRef.current = emailValue;
+      
+      // Si el correo ya está visible, actualizarlo también
+      if (isVisible) {
+        setDecodedEmail(emailValue);
+      }
+    }
+  }, [language, emailProp, fallback, isMounted, isVisible]);
 
   // Detectar scroll del usuario - SOLO mostrar el correo cuando haya scroll real
   useEffect(() => {

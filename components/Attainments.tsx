@@ -19,40 +19,60 @@ const Attainments = () => {
     // Solo ejecutar animaciones cuando el loading inicial haya terminado
     if (resumeLoading || !data) return;
 
-    gsap.from(".design-row-item", {
-      opacity: 0,
-      scale: 0,
-      stagger: 0.2,
-      duration: 1.5,
-      ease: "back",
-      scrollTrigger: {
-        trigger: ".attainments",
-        start: "top 60%",
-        end: "top 20%",
-      },
-    });
-    gsap.from(".developer-row", {
-      opacity: 0,
-      scale: 0,
-      duration: 1.5,
-      scrollTrigger: {
-        trigger: ".design-row",
-        start: "top 60%",
-        end: "top 20%",
-      },
-    });
-    gsap.from(".language-row-item", {
-      opacity: 0,
-      scale: 0,
-      duration: 1.5,
-      ease: "back",
-      stagger: 0.1,
-      scrollTrigger: {
-        trigger: ".developer-row",
-        start: "top 60%",
-        end: "top 20%",
-      },
-    });
+    // Verificar que los elementos existan antes de animarlos
+    const designRowItems = document.querySelectorAll(".design-row-item");
+    const developerRows = document.querySelectorAll(".developer-row");
+    const languageRowItems = document.querySelectorAll(".language-row-item");
+
+    if (designRowItems.length > 0) {
+      gsap.from(".design-row-item", {
+        opacity: 0,
+        scale: 0,
+        stagger: 0.2,
+        duration: 1.5,
+        ease: "back",
+        force3D: true,
+        scrollTrigger: {
+          trigger: ".attainments",
+          start: "top 60%",
+          end: "top 20%",
+          invalidateOnRefresh: true,
+        },
+      });
+    }
+
+    if (developerRows.length > 0) {
+      gsap.from(".developer-row", {
+        opacity: 0,
+        scale: 0,
+        duration: 1.5,
+        force3D: true,
+        scrollTrigger: {
+          trigger: ".design-row",
+          start: "top 60%",
+          end: "top 20%",
+          invalidateOnRefresh: true,
+        },
+      });
+    }
+
+    // Solo animar language-row-item si existe
+    if (languageRowItems.length > 0) {
+      gsap.from(".language-row-item", {
+        opacity: 0,
+        scale: 0,
+        duration: 1.5,
+        ease: "back",
+        stagger: 0.1,
+        force3D: true,
+        scrollTrigger: {
+          trigger: ".developer-row",
+          start: "top 60%",
+          end: "top 20%",
+          invalidateOnRefresh: true,
+        },
+      });
+    }
   }, { dependencies: [resumeLoading, data] });
   const skills = data?.skills || [];
 

@@ -12,16 +12,24 @@ gsap.registerPlugin(ScrollTrigger);
 
 const Services = () => {
   useGSAP(() => {
-    gsap.from(".service-card", {
-      stagger: 0.2,
-      opacity: 0,
-      duration: 1.5,
-      scrollTrigger: {
-        trigger: ".services",
-        start: "top 60%",
-        end: "top 20%",
-      },
-    });
+    // Verificar que los elementos existan antes de animarlos
+    const serviceCard = document.querySelector(".service-card");
+    const servicesSection = document.querySelector(".services");
+
+    if (serviceCard && servicesSection) {
+      gsap.from(".service-card", {
+        stagger: 0.2,
+        opacity: 0,
+        duration: 1.5,
+        force3D: true,
+        scrollTrigger: {
+          trigger: ".services",
+          start: "top 60%",
+          end: "top 20%",
+          invalidateOnRefresh: true,
+        },
+      });
+    }
   });
   return (
     <section id="services" className="services section position-relative">

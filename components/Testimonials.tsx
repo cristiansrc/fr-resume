@@ -10,28 +10,58 @@ import SectionTitle from "./SectionTitle";
 
 const Testimonials = () => {
   useGSAP(() => {
-    gsap.fromTo(
-      ".section-title-overlay-text",
-      { y: "50%" },
-      {
-        y: "-50%",
-        scrollTrigger: {
-          trigger: ".testimonials",
-          start: "top bottom",
-          end: "bottom top",
-          scrub: true,
+    // Verificar que los elementos existan antes de animarlos
+    const testimonialsSection = document.querySelector(".testimonials");
+    const overlayText = testimonialsSection?.querySelector(".section-title-overlay-text") as HTMLElement;
+    const testimonialCard = document.querySelector(".testimonial-card");
+
+    if (overlayText && testimonialsSection) {
+      gsap.fromTo(
+        overlayText,
+        { y: "50%", force3D: true },
+        {
+          y: "-50%",
+          force3D: true,
+          scrollTrigger: {
+            trigger: ".testimonials",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1,
+            invalidateOnRefresh: true,
+            anticipatePin: 1, // Optimizar para scroll asíncrono
+            refreshPriority: -1, // Prioridad baja para mejor rendimiento
+            fastScrollEnd: true, // Optimizar fin de scroll para Firefox
+            // Aplicar will-change solo cuando la animación esté activa
+            onEnter: () => {
+              overlayText.style.willChange = "transform";
+            },
+            onLeave: () => {
+              overlayText.style.willChange = "auto";
+            },
+            onEnterBack: () => {
+              overlayText.style.willChange = "transform";
+            },
+            onLeaveBack: () => {
+              overlayText.style.willChange = "auto";
+            },
+          },
         },
-      },
-    );
-    gsap.from(".testimonial-card", {
-      opacity: 0,
-      y: 40,
-      duration: 1.2,
-      stagger: 0.2,
-      scrollTrigger: {
-        trigger: ".testimonial-card",
-      },
-    });
+      );
+    }
+
+    if (testimonialCard) {
+      gsap.from(".testimonial-card", {
+        opacity: 0,
+        y: 40,
+        duration: 1.2,
+        stagger: 0.2,
+        force3D: true,
+        scrollTrigger: {
+          trigger: ".testimonial-card",
+          invalidateOnRefresh: true,
+        },
+      });
+    }
   });
   return (
     <section id="testimonials" className="testimonials section position-relative">

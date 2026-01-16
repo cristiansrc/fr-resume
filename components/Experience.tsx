@@ -62,37 +62,53 @@ const Experience = () => {
     // Solo ejecutar animaciones cuando el loading inicial haya terminado
     if (resumeLoading || !data) return;
 
-    gsap.from(".experience-item", {
-      opacity: 0,
-      duration: 1,
-      stagger: 0.5,
-      scrollTrigger: {
-        trigger: ".experience-item",
-      },
-    });
+    // Verificar que los elementos existan antes de animarlos
+    const experienceItem = document.querySelector(".experience-item");
+    const experienceWrapper = document.querySelector(".experience-wrapper");
 
-    gsap.utils.toArray(".experience-item").forEach((item: any) => {
-      gsap.to(item, {
-        "--item-height": "100%",
+    if (experienceItem) {
+      gsap.from(".experience-item", {
+        opacity: 0,
+        duration: 1,
         stagger: 0.5,
-        delay: 0.5,
+        force3D: true,
         scrollTrigger: {
-          trigger: item,
-          start: "top 80%",
-          end: "top 20%",
+          trigger: ".experience-item",
+          invalidateOnRefresh: true,
         },
       });
-    });
 
-    gsap.to(".experience-wrapper", {
-      duration: 2,
-      ease: "back",
-      delay: 0.5,
-      "--height": "100%",
-      scrollTrigger: {
-        trigger: ".experience-wrapper",
-      },
-    });
+      gsap.utils.toArray(".experience-item").forEach((item: any) => {
+        if (item) {
+          gsap.to(item, {
+            "--item-height": "100%",
+            stagger: 0.5,
+            delay: 0.5,
+            force3D: true,
+            scrollTrigger: {
+              trigger: item,
+              start: "top 80%",
+              end: "top 20%",
+              invalidateOnRefresh: true,
+            },
+          });
+        }
+      });
+    }
+
+    if (experienceWrapper) {
+      gsap.to(".experience-wrapper", {
+        duration: 2,
+        ease: "back",
+        delay: 0.5,
+        "--height": "100%",
+        force3D: true,
+        scrollTrigger: {
+          trigger: ".experience-wrapper",
+          invalidateOnRefresh: true,
+        },
+      });
+    }
   }, { dependencies: [resumeLoading, data] });
   return (
     <section id="experience" className="experience section position-relative">

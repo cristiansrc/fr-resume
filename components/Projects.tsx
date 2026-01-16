@@ -44,16 +44,24 @@ const projects = [
 const Projects = () => {
   const [currentProject, setCurrentProject] = useState(projects[0]);
   useGSAP(() => {
-    gsap.from(".single-project", {
-      opacity: 0,
-      stagger: 0.2,
-      scale: 0,
-      scrollTrigger: {
-        trigger: ".project-list",
-        start: "top 60%",
-        end: "top 20%",
-      },
-    });
+    // Verificar que los elementos existan antes de animarlos
+    const singleProject = document.querySelector(".single-project");
+    const projectList = document.querySelector(".project-list");
+
+    if (singleProject && projectList) {
+      gsap.from(".single-project", {
+        opacity: 0,
+        stagger: 0.2,
+        scale: 0,
+        force3D: true,
+        scrollTrigger: {
+          trigger: ".project-list",
+          start: "top 60%",
+          end: "top 20%",
+          invalidateOnRefresh: true,
+        },
+      });
+    }
   });
   return (
     <>

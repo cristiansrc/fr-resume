@@ -4,39 +4,76 @@ import gsap from "gsap";
 import SectionTitle from "./SectionTitle";
 const HowIWork = () => {
   useGSAP(() => {
-    gsap.fromTo(
-      ".section-title-overlay-text",
-      { y: "50%" },
-      {
-        y: "-50%",
-        scrollTrigger: {
-          trigger: ".how-i-work",
-          start: "top bottom",
-          end: "bottom top",
-          scrub: true,
+    // Verificar que los elementos existan antes de animarlos
+    const howIWorkSection = document.querySelector(".how-i-work");
+    const overlayText = howIWorkSection?.querySelector(".section-title-overlay-text") as HTMLElement;
+    const moreInfo = document.querySelector(".more-info");
+    const process = document.querySelector(".process");
+    const processList = document.querySelector(".process-list");
+
+    if (overlayText && howIWorkSection) {
+      gsap.fromTo(
+        overlayText,
+        { y: "50%", force3D: true },
+        {
+          y: "-50%",
+          force3D: true,
+          scrollTrigger: {
+            trigger: ".how-i-work",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1,
+            invalidateOnRefresh: true,
+            anticipatePin: 1, // Optimizar para scroll asíncrono
+            refreshPriority: -1, // Prioridad baja para mejor rendimiento
+            fastScrollEnd: true, // Optimizar fin de scroll para Firefox
+            // Aplicar will-change solo cuando la animación esté activa
+            onEnter: () => {
+              overlayText.style.willChange = "transform";
+            },
+            onLeave: () => {
+              overlayText.style.willChange = "auto";
+            },
+            onEnterBack: () => {
+              overlayText.style.willChange = "transform";
+            },
+            onLeaveBack: () => {
+              overlayText.style.willChange = "auto";
+            },
+          },
         },
-      },
-    );
-    gsap.from(".more-info", {
-      scale: 0,
-      duration: 1.2,
-      ease: "elastic",
-      delay: 0.5,
-      scrollTrigger: {
-        trigger: ".more-info",
-      },
-    });
-    gsap.from(".process", {
-      stagger: 0.15,
-      scale: 0,
-      duration: 2.8,
-      ease: "elastic",
-      scrollTrigger: {
-        trigger: ".process-list",
-        start: "top 60%",
-        end: "top 20%",
-      },
-    });
+      );
+    }
+
+    if (moreInfo) {
+      gsap.from(".more-info", {
+        scale: 0,
+        duration: 1.2,
+        ease: "elastic",
+        delay: 0.5,
+        force3D: true,
+        scrollTrigger: {
+          trigger: ".more-info",
+          invalidateOnRefresh: true,
+        },
+      });
+    }
+
+    if (process && processList) {
+      gsap.from(".process", {
+        stagger: 0.15,
+        scale: 0,
+        duration: 2.8,
+        ease: "elastic",
+        force3D: true,
+        scrollTrigger: {
+          trigger: ".process-list",
+          start: "top 60%",
+          end: "top 20%",
+          invalidateOnRefresh: true,
+        },
+      });
+    }
   });
   return (
     <section id="how_i_work" className="how-i-work section position-relative">
