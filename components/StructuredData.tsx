@@ -23,17 +23,22 @@ export const StructuredData = () => {
     const existingScripts = document.querySelectorAll('script[type="application/ld+json"]');
     existingScripts.forEach(script => script.remove());
 
+    // Construir nombre completo desde las propiedades disponibles
+    const fullName = data.basicData 
+      ? `${data.basicData.firstName || ""} ${data.basicData.othersName || ""} ${data.basicData.firstSurName || ""} ${data.basicData.othersSurName || ""}`.trim() || "Cristian SRC"
+      : "Cristian SRC";
+
     // Person Schema (Schema.org)
     const personSchema = {
       "@context": "https://schema.org",
       "@type": "Person",
-      name: data.basicData?.name || "Cristian SRC",
+      name: fullName,
       jobTitle: language === "es" 
         ? "Desarrollador Full Stack y Tech Lead"
         : "Full Stack Developer and Tech Lead",
       description: language === "es"
-        ? data.basicData?.summary || "Full Stack Developer especializado en Java, React, Spring Boot, AWS y Python."
-        : data.basicData?.summaryEng || "Full Stack Developer specialized in Java, React, Spring Boot, AWS and Python.",
+        ? data.basicData?.description || "Full Stack Developer especializado en Java, React, Spring Boot, AWS y Python."
+        : data.basicData?.descriptionEng || "Full Stack Developer specialized in Java, React, Spring Boot, AWS and Python.",
       url: siteUrl,
       sameAs: [
         ...(data.basicData?.linkedin ? [data.basicData.linkedin] : []),
@@ -85,7 +90,7 @@ export const StructuredData = () => {
       name: "Full Stack Development Services",
       provider: {
         "@type": "Person",
-        name: data.basicData?.name || "Cristian SRC",
+        name: fullName,
       },
       areaServed: "Worldwide",
       serviceType: [

@@ -22,8 +22,8 @@ export const SEOHead = () => {
     
     // Descripción basada en idioma y datos
     const description = language === "es"
-      ? data?.basicData?.summary || "Full Stack Developer y Tech Lead especializado en Java, React, Spring Boot, AWS y Python. Portfolio personal con experiencia, proyectos y habilidades."
-      : data?.basicData?.summaryEng || "Full Stack Developer and Tech Lead specialized in Java, React, Spring Boot, AWS and Python. Personal portfolio with experience, projects and skills.";
+      ? data?.basicData?.description || "Full Stack Developer y Tech Lead especializado en Java, React, Spring Boot, AWS y Python. Portfolio personal con experiencia, proyectos y habilidades."
+      : data?.basicData?.descriptionEng || "Full Stack Developer and Tech Lead specialized in Java, React, Spring Boot, AWS and Python. Personal portfolio with experience, projects and skills.";
 
     // Título basado en idioma
     const title = language === "es"
