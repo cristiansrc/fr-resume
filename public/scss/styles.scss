@@ -81,6 +81,21 @@ h6 {
     font-size: 18px;
   }
 }
+
+// Hero buttons responsive width
+.hero {
+  .work-btn,
+  .contact-btn {
+    max-width: 220px;
+    width: 100%;
+    
+    @media screen and (min-width: 768px) {
+      min-width: 240px;
+      max-width: none;
+    }
+  }
+}
+
 .container-fluid {
   position: relative;
   z-index: 2;
