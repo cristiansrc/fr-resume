@@ -296,9 +296,14 @@ const Hero = ({ classes }: { classes?: string }) => {
               href="#" 
               onClick={handleWorkClick}
               className="btn work-btn text-capitalize btn-secondary"
-              onMouseEnter={() => setIsHovering(true)}
+              onMouseEnter={() => {
+                // Solo activar hover en dispositivos no táctiles (desktop)
+                if (!('ontouchstart' in window)) {
+                  setIsHovering(true);
+                }
+              }}
               onMouseLeave={() => setIsHovering(false)}
-              style={{ minWidth: "240px", textAlign: "center" }}
+              style={{ textAlign: "center" }}
               aria-label={language === "es" ? "Descargar Hoja de vida" : "Download Resume"}
             >
               {isHovering 
@@ -310,7 +315,7 @@ const Hero = ({ classes }: { classes?: string }) => {
               ref={contactButtonRef}
               href="#contact" 
               className="btn contact-btn text-capitalize btn-outline-secondary"
-              style={{ minWidth: "240px", textAlign: "center" }}
+              style={{ textAlign: "center" }}
               aria-label={data?.home?.buttonContactLabel ? (language === "es" ? data.home.buttonContactLabel : data.home.buttonContactLabelEng) : "contact me"}
             >
               {data?.home?.buttonContactLabel ? (language === "es" ? data.home.buttonContactLabel : data.home.buttonContactLabelEng) : "contact me"}
