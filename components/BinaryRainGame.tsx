@@ -56,9 +56,9 @@ const BinaryRainGame: React.FC<BinaryRainGameProps> = ({ isOpen, onClose, langua
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Set canvas size - más ancho para llegar hasta la derecha
-    canvas.width = 700;
-    canvas.height = 400;
+    // Set canvas size - optimizado para pantallas 1080p y laptops
+    canvas.width = 550;
+    canvas.height = 350;
 
     const gameState = gameStateRef.current;
     gameState.basketX = canvas.width / 2;
@@ -292,7 +292,7 @@ const BinaryRainGame: React.FC<BinaryRainGameProps> = ({ isOpen, onClose, langua
           border: "3px solid #0f0",
           borderRadius: "10px",
           padding: "20px",
-          maxWidth: "800px",
+          maxWidth: "650px",
           width: "90%",
           boxShadow: "0 0 30px rgba(0, 255, 0, 0.3)",
           fontFamily: "monospace",
@@ -303,10 +303,10 @@ const BinaryRainGame: React.FC<BinaryRainGameProps> = ({ isOpen, onClose, langua
       >
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: "15px" }}>
-          <h2 style={{ color: "#0f0", margin: 0, fontSize: "24px", textShadow: "0 0 10px #0f0" }}>
+          <h2 style={{ color: "#0f0", margin: 0, fontSize: "20px", textShadow: "0 0 10px #0f0" }}>
             🎮 {t.title}
           </h2>
-          <div style={{ color: "#FFDB67", fontSize: "20px", marginTop: "8px", fontWeight: "bold" }}>
+          <div style={{ color: "#FFDB67", fontSize: "18px", marginTop: "8px", fontWeight: "bold" }}>
             {t.score}: {score}
           </div>
         </div>
