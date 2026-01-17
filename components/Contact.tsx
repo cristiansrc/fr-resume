@@ -142,8 +142,9 @@ const Contact = () => {
       return;
     }
     
-    setSubmitBtnState("sending");
+    // Show overlay immediately before starting any async operations
     setLoading(true);
+    setSubmitBtnState("sending");
     
     try {
       // Resolve Altcha challenge
