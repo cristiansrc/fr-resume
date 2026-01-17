@@ -29,7 +29,7 @@ const SuccessPopup: React.FC<SuccessPopupProps> = ({ onClose }) => {
              textAlign: "center"
            }}>
         <div className="success-icon mb-4" style={{ fontSize: "4rem" }}>
-          <i className="ph ph-check-circle" style={{ color: "rgb(var(--primary))" }}></i>
+          <i className="ph ph-check-circle" style={{ color: "#22c55e" }}></i>
         </div>
         
         <h2 className="mb-3" style={{ 
