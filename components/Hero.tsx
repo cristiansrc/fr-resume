@@ -41,11 +41,11 @@ const Hero = ({ classes }: { classes?: string }) => {
   };
 
   const handleImageClick = () => {
-    // Detectar si es un dispositivo móvil
-    const isMobile = window.innerWidth <= 768;
+    // Detectar si la pantalla es muy pequeña (menor a 1024x768)
+    const isSmallScreen = window.innerWidth < 1024 || window.innerHeight < 768;
     
-    // No hacer nada en dispositivos móviles
-    if (isMobile) {
+    // No hacer nada en pantallas pequeñas
+    if (isSmallScreen) {
       return;
     }
     
