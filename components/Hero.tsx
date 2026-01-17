@@ -12,6 +12,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useLoading } from "@/contexts/LoadingContext";
 import { downloadCurriculumPdf } from "@/api";
 import shuffleLetters from "shuffle-letters";
+import BinaryRainGame from "@/components/BinaryRainGame";
 
 const Hero = ({ classes }: { classes?: string }) => {
   const { t } = useTranslation();
@@ -22,6 +23,9 @@ const Hero = ({ classes }: { classes?: string }) => {
   const workButtonRef = useRef<HTMLAnchorElement>(null);
   const contactButtonRef = useRef<HTMLAnchorElement>(null);
   const [isHovering, setIsHovering] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
+  const [showGame, setShowGame] = useState(false);
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const handleWorkClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -34,6 +38,40 @@ const Hero = ({ classes }: { classes?: string }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleImageClick = () => {
+    // Detectar si es un dispositivo móvil
+    const isMobile = window.innerWidth <= 768;
+    
+    // No hacer nada en dispositivos móviles
+    if (isMobile) {
+      return;
+    }
+    
+    setClickCount((prev) => {
+      const newCount = prev + 1;
+      
+      // Clear previous timeout
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+      }
+
+      // Reset counter after 2 seconds of inactivity
+      clickTimeoutRef.current = setTimeout(() => {
+        setClickCount(0);
+      }, 2000);
+
+      // Open game on third click
+      if (newCount === 3) {
+        setShowGame(true);
+        setClickCount(0);
+        console.log("%c💥 SYSTEM BREACH DETECTED!", "color: #ff0055; font-size: 20px; font-weight: bold; font-family: monospace;");
+        console.log("%c🎮 Launching Binary Rain Catcher...", "color: #0f0; font-size: 16px; font-family: monospace;");
+      }
+
+      return newCount;
+    });
   };
 
   useGSAP(() => {
@@ -280,7 +318,7 @@ const Hero = ({ classes }: { classes?: string }) => {
           </div>
         </div>
         <div className="col-12 col-md-5 offset-md-1 offset-xxl-2 col-xl-4 d-flex justify-content-center">
-          <div className="img-wrapper">
+          <div className="img-wrapper" onClick={handleImageClick} style={{ cursor: "pointer" }}>
             <div className="waves-top">
               <span></span>
               <span></span>
@@ -306,6 +344,9 @@ const Hero = ({ classes }: { classes?: string }) => {
           </Link>
         </div>
       </div>
+      
+      {/* Binary Rain Game Modal */}
+      <BinaryRainGame isOpen={showGame} onClose={() => setShowGame(false)} language={language} />
     </section>
   );
 };
